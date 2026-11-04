@@ -254,7 +254,7 @@ export function TestRunner({ slug }: { slug: string }) {
 
   return (
     <main className="min-h-screen bg-[#f3f1eb]">
-      <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[#fbfaf7]/95 backdrop-blur">
+      <header className="sticky top-[68px] z-30 border-b border-[var(--line)] bg-[#fbfaf7]/95 backdrop-blur">
         <div className="page-shell flex min-h-[72px] items-center justify-between gap-4">
           <div className="min-w-0"><Link href="/tests" className="text-[10px] text-[#817b72] hover:text-[#242321]">← Test library</Link><h1 className="truncate font-display text-lg font-semibold">{test.title}</h1></div>
           <div className="flex shrink-0 items-center gap-3"><div className={`flex items-center gap-2 rounded-xl border px-3 py-2 font-mono text-sm tabular-nums ${remaining < 300 ? "border-[#d8b5a9] bg-[#fbefeb] text-[#9b473d]" : "border-[var(--line)] bg-white"}`}><ClockIcon className="size-4"/>{formatTime(remaining)}</div><button onClick={() => setReviewOpen(true)} className="btn btn-neutral btn-sm rounded-full normal-case">Submit test</button></div>
