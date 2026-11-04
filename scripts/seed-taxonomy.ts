@@ -29,7 +29,7 @@ const subjectCatalog = [
       "Profit, Loss & Discount", "Simple & Compound Interest", "Time, Speed & Distance",
       "Time & Work", "Number System", "Algebra", "Linear & Quadratic Equations",
       "Inequalities", "Functions & Graphs", "Logarithms", "Progressions",
-      "Geometry", "Mensuration", "Permutation & Combination", "Probability",
+      "Geometry", "Mensuration", "Number System", "Permutation & Combination", "Probability", "Sets & Venn Diagrams", "Binomial Theorem",
     ],
   },
   {
