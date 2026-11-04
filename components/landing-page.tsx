@@ -99,7 +99,7 @@ function Frequency({ value }: { value:string }) {
 }
 
 export function LandingPage() {
-  const root = useRef<HTMLElement>(null);
+  const root = useRef<HTMLElement | null>(null);
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.timeline({ defaults:{ ease:"power3.out" } })
