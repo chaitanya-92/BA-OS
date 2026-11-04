@@ -28,7 +28,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS "sessions_token_hash_uidx" ON "sessions" ("tok
 CREATE INDEX IF NOT EXISTS "sessions_user_idx" ON "sessions" ("user_id");
 CREATE INDEX IF NOT EXISTS "sessions_expiry_idx" ON "sessions" ("expires_at");
 
-ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "user_id" uuid REFERENCES "users"("id") ON DELETE SET NULL;
+ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "user_id" uuid;
+DO $ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'attempts_user_id_users_id_fk') THEN
+    ALTER TABLE "attempts" ADD CONSTRAINT "attempts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL;
+  END IF;
+END $;
 CREATE INDEX IF NOT EXISTS "attempts_user_started_idx" ON "attempts" ("user_id","started_at");
 
 CREATE TABLE IF NOT EXISTS "revision_items" (
