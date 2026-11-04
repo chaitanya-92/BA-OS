@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike, or } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -13,6 +13,7 @@ const querySchema = z.object({
   topicId: z.string().uuid().optional(),
   year: z.coerce.number().int().min(1990).max(2100).optional(),
   difficulty: z.enum(["easy", "moderate", "difficult", "unrated"]).optional(),
+  q: z.string().trim().max(120).optional(),
   limit: z.coerce.number().int().min(1).max(50).default(20),
   offset: z.coerce.number().int().min(0).max(10000).default(0),
 });
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
       ...(filters.topicId ? [eq(questions.topicId, filters.topicId)] : []),
       ...(filters.year ? [eq(questions.examYear, filters.year)] : []),
       ...(filters.difficulty ? [eq(questions.difficulty, filters.difficulty)] : []),
+      ...(filters.q ? [ilike(questions.prompt, `%${filters.q}%`)] : []),
     ];
 
     const items = await db
@@ -53,6 +55,7 @@ export async function GET(request: NextRequest) {
         questionType: questions.questionType,
         difficulty: questions.difficulty,
         prompt: questions.prompt,
+        verificationStatus: questions.verificationStatus,
         createdAt: questions.createdAt,
       })
       .from(questions)
