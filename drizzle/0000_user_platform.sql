@@ -296,9 +296,9 @@ ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "user_id" uuid;
 DO $ BEGIN
  IF NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conrelid = 'attempts'::regclass AND c.confrelid = 'users'::regclass AND c.contype = 'f' AND pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY (user_id)%') THEN
   ALTER TABLE "attempts" ADD CONSTRAINT "attempts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL;
-
+--> statement-breakpoint
  END IF;
-
+--> statement-breakpoint
 END $;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "attempts_user_started_idx" ON "attempts" ("user_id","started_at");
