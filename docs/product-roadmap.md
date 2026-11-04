@@ -1,13 +1,13 @@
 # MBA OS product roadmap
 
-## Phase 1 — Public landing page (current)
-- Playfair Display editorial design system and responsive navigation.
+## Phase 1 — Public landing page (implemented foundation)
+- DM Sans-only typography system and responsive navigation with hover dropdowns and animated sticky header.
 - PYQ, mock, sectional test, resource and entrance-date sections.
 - User-supplied topic-frequency reference table with provenance note.
 - GSAP entrance and scroll-reveal animation with reduced-motion support.
 - Reusable skeleton primitives and toast host.
 
-## Phase 2 — Platform foundations
+## Phase 2 — Platform foundations (next priority)
 - Neon PostgreSQL using a rotated secret; Drizzle schema and migrations.
 - Authentication and user profile.
 - Subject/topic/subtopic taxonomy and source registry.
