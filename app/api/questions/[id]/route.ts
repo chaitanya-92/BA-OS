@@ -35,10 +35,7 @@ export async function GET(
       .where(eq(questions.id, id))
       .limit(1);
 
-    if (!question || !(
-      await db.select({ id: questions.id }).from(questions)
-        .where(eq(questions.id, id)).limit(1)
-    ).length) {
+    if (!question || !question.isPublished) {
       return NextResponse.json({ error: "Question not found." }, { status: 404 });
     }
 
@@ -61,7 +58,8 @@ export async function GET(
         .orderBy(asc(solutions.createdAt)),
     ]);
 
-    const { isPublished: _isPublished, ...publicQuestion } = question;\n    return NextResponse.json({ ...publicQuestion, options, solutions: explanationRows });
+    const { isPublished: _isPublished, ...publicQuestion } = question;
+    return NextResponse.json({ ...publicQuestion, options, solutions: explanationRows });
   } catch {
     return NextResponse.json(
       { error: "Question details are temporarily unavailable." },
