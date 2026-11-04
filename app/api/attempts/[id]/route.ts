@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
@@ -76,20 +76,27 @@ export async function GET(
         }).from(solutions)
           .where(and(
             eq(solutions.questionId, row.questionId),
-            eq(solutions.answerVerification, "verified"),
+            inArray(solutions.answerVerification, ["verified", "independently_checked"]),
           )).orderBy(asc(solutions.createdAt)),
       ]);
       const selected = new Set(row.selectedOptionIds);
       const correct = options.filter((option) => option.isCorrect === true);
-      const isCorrect = correct.length > 0 && correct.length === selected.size &&
-        correct.every((option) => selected.has(option.id));
       const answered = selected.size > 0 || Boolean(row.answerText?.trim());
+      const normalise = (value: string) => value.replace(/\\s+/g, "").toLowerCase();
+      const isCorrect = !answered ? null :
+        row.questionType === "mcq_single" || row.questionType === "mcq_multiple"
+          ? correct.length > 0 && correct.length === selected.size && correct.every((option) => selected.has(option.id))
+          : explanations.some((solution) => solution.answerText && normalise(solution.answerText) === normalise(row.answerText ?? ""));
       return {
         ...row,
         options,
         solutions: explanations,
-        isCorrect: answered ? isCorrect : null,
-        correctAnswer: correct.map((option) => option.optionKey),
+        isCorrect,
+        correctAnswer: correct.map((option) => option.optionKey).concat(
+          row.questionType !== "mcq_single" && row.questionType !== "mcq_multiple"
+            ? explanations.map((solution) => solution.answerText).filter((value): value is string => Boolean(value))
+            : [],
+        ),
       };
     }));
 
