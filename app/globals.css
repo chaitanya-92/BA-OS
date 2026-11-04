@@ -25,10 +25,10 @@
 html { scroll-behavior:smooth; scroll-padding-top:6rem; }
 body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--font-sans),Arial,sans-serif; -webkit-font-smoothing:antialiased; }
 ::selection { color:#fff; background:var(--accent); }
-.font-display { font-family:var(--font-display),Georgia,serif; }
-.font-mono { font-family:var(--font-mono),monospace; }
+.font-display, .font-mono { font-family:var(--font-sans),Arial,sans-serif; }
+.font-mono { font-variant-numeric:tabular-nums; }
 .page-shell { width:min(100% - 3rem,1200px); margin-inline:auto; }
-.eyebrow { display:inline-flex; align-items:center; gap:.55rem; color:var(--muted); font-family:var(--font-mono),monospace; font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; }
+.eyebrow { display:inline-flex; align-items:center; gap:.55rem; color:var(--muted); font-family:var(--font-sans),Arial,sans-serif; font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; }
 .eyebrow:before { width:1.2rem; height:1px; content:""; background:currentColor; }
 .editorial-heading { font-family:var(--font-display),Georgia,serif; font-weight:500; letter-spacing:-.045em; line-height:.99; }
 .soft-card { border:1px solid var(--line); background:rgba(255,255,255,.5); transition:transform .18s,border-color .18s,box-shadow .18s; }
