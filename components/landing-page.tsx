@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
+import { Modal } from "@/components/ui/modal";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -121,13 +122,28 @@ function Header() {
       </div>
       {mobile && <nav aria-label="Mobile navigation" className="page-shell grid gap-1 border-t border-[var(--line)] py-3 xl:hidden">{nav.map((item) => <div key={item.label}>{renderDropdown(item, true)}</div>)}<button className="btn btn-outline mt-2 justify-start" onClick={() => { setMobile(false); setSearch(true); }}><MagnifyingGlassIcon className="size-4"/> Search library</button></nav>}
     </header>
-    {search && <div className="command-overlay fixed inset-0 z-[70] flex items-start justify-center px-4 pt-[12vh]" onMouseDown={(e) => { if (e.target === e.currentTarget) setSearch(false); }}>
-      <section role="dialog" aria-modal="true" aria-label="Search MBA OS" className="w-full max-w-xl overflow-hidden rounded-2xl border border-[var(--line)] bg-[#fbfaf7] shadow-2xl">
-        <div className="flex items-center gap-3 border-b border-[var(--line)] px-4"><MagnifyingGlassIcon className="size-5 text-[#777168]"/><input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search questions, topics, tests and resources…" className="h-14 w-full bg-transparent text-sm outline-none"/><kbd className="kbd kbd-sm">ESC</kbd></div>
-        <div className="p-2"><p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#817b72]">Quick navigation</p>{matches.length ? matches.map((x) => <a key={x.label} href={x.href} onClick={() => { setSearch(false); setQuery(""); }} className="flex items-center justify-between rounded-xl px-3 py-3 text-sm hover:bg-[#efede7]"><span>{x.label}</span><span className="text-[10px] font-medium uppercase text-[#969087]">{x.type}</span></a>) : <p className="px-3 py-8 text-center text-sm text-[#777168]">No matching destinations.</p>}</div>
-        <div className="flex justify-between border-t border-[var(--line)] px-4 py-3 text-[10px] text-[#817b72]"><span>Search currently covers site navigation.</span><span>MBA OS</span></div>
-      </section>
-    </div>}
+    <Modal
+      open={search}
+      onClose={() => { setSearch(false); setQuery(""); }}
+      title="Search MBA OS"
+      description="Jump directly to a section, topic or study resource."
+      size="lg"
+    >
+      <div className="flex items-center gap-3 rounded-xl border border-[var(--line)] bg-white/70 px-4">
+        <MagnifyingGlassIcon className="size-5 shrink-0 text-[#777168]"/>
+        <input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search questions, topics, tests and resources…" className="h-12 w-full bg-transparent text-sm outline-none"/>
+        <kbd className="kbd kbd-sm">ESC</kbd>
+      </div>
+      <div className="mt-4">
+        <p className="px-2 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#817b72]">Quick navigation</p>
+        {matches.length ? matches.map((item) => (
+          <a key={item.label} href={item.href} onClick={() => { setSearch(false); setQuery(""); }} className="flex items-center justify-between rounded-xl px-3 py-3 text-sm transition-colors hover:bg-[#efede7]">
+            <span>{item.label}</span><span className="text-[10px] font-medium uppercase text-[#969087]">{item.type}</span>
+          </a>
+        )) : <p className="px-3 py-8 text-center text-sm text-[#777168]">No matching destinations.</p>}
+      </div>
+      <p className="mt-3 border-t border-[var(--line)] pt-4 text-[10px] text-[#817b72]">Search currently covers site navigation.</p>
+    </Modal>
   </>;
 }
 function Frequency({ value }: { value:string }) {
@@ -139,12 +155,12 @@ export function LandingPage() {
   const root = useRef<HTMLElement | null>(null);
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.timeline({ defaults:{ ease:"power3.out" } })
-      .from(".site-header", { y:-18, autoAlpha:0, duration:.65 })
-      .from(".hero-kicker", { y:12, autoAlpha:0, duration:.55 })
-      .from(".hero-title", { y:28, autoAlpha:0, duration:.8 }, "-=.28")
-      .from(".hero-copy, .hero-actions", { y:15, autoAlpha:0, duration:.6, stagger:.12 }, "-=.35")
-      .from(".hero-art", { x:26, autoAlpha:0, duration:.8 }, "-=.6");
+    // Keep hero content visible before hydration; animate only a short transform.
+    gsap.timeline({ defaults:{ ease:"power2.out", duration:.32 } })
+      .from(".hero-kicker", { y:8, immediateRender:false })
+      .from(".hero-title", { y:12, immediateRender:false }, "-=.18")
+      .from(".hero-copy, .hero-actions", { y:8, stagger:.045, immediateRender:false }, "-=.18")
+      .from(".hero-art", { y:10, immediateRender:false, duration:.38 }, "-=.2");
     const headerEl = document.querySelector<HTMLElement>(".site-header");
     const navInner = document.querySelector<HTMLElement>(".nav-inner");
     if (headerEl && navInner) {
