@@ -1,8 +1,8 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
-import { studyResources } from "@/lib/db/schema";
+import { contentEntries, studyResources } from "@/lib/db/schema";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,7 +44,23 @@ export async function GET(request: NextRequest) {
       .where(and(...conditions))
       .orderBy(asc(studyResources.title))
       .limit(100);
-    return NextResponse.json({ items });
+    const authored = await getDb().select({
+      id: contentEntries.id,
+      subjectId: contentEntries.subjectId,
+      topicId: contentEntries.topicId,
+      title: contentEntries.title,
+      slug: contentEntries.slug,
+      kind: contentEntries.entryType,
+      content: contentEntries.content,
+      externalUrl: sql<string | null>`null`,
+    }).from(contentEntries).where(and(
+      eq(contentEntries.status, "published"),
+      eq(contentEntries.verificationStatus, "verified"),
+      ...(filters.subjectId ? [eq(contentEntries.subjectId, filters.subjectId)] : []),
+      ...(filters.topicId ? [eq(contentEntries.topicId, filters.topicId)] : []),
+      ...(filters.kind ? [eq(contentEntries.entryType, filters.kind as "note" | "formula" | "trap" | "shortcut" | "checklist")] : []),
+    )).orderBy(asc(contentEntries.title)).limit(100);
+    return NextResponse.json({ items: [...items, ...authored].sort((a,b) => a.title.localeCompare(b.title)).slice(0,150) });
   } catch {
     return NextResponse.json({ error: "Learning resources are temporarily unavailable." }, { status: 503 });
   }
