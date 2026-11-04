@@ -1,15 +1,26 @@
 -- Complete initial schema for MBA OS, including student accounts and revision/content workflows.
 DO $$ BEGIN CREATE TYPE "exam_status" AS ENUM ('active','archived','draft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "question_type" AS ENUM ('mcq_single','mcq_multiple','numeric','text','passage','set'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "difficulty_level" AS ENUM ('easy','moderate','difficult','unrated'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "source_kind" AS ENUM ('official_exam','user_collection','third_party','original_practice','expected_question','editorial'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "verification_status" AS ENUM ('unreviewed','verified','source_key_only','independently_checked','disputed','missing'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "test_kind" AS ENUM ('full_mock','sectional','topic_practice','diagnostic'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "attempt_status" AS ENUM ('in_progress','submitted','auto_submitted','abandoned'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "college_status" AS ENUM ('active','inactive','draft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "admission_event_status" AS ENUM ('announced','scheduled','open','closed','tentative'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "content_entry_type" AS ENUM ('note','formula','trap','shortcut','checklist'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 DO $$ BEGIN CREATE TYPE "content_entry_status" AS ENUM ('draft','in_review','published','archived'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "users" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -25,8 +36,11 @@ CREATE TABLE IF NOT EXISTS "users" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "users_email_uidx" ON "users" ("email");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "users_role_idx" ON "users" ("role");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "sessions" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -37,9 +51,13 @@ CREATE TABLE IF NOT EXISTS "sessions" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "sessions_token_hash_uidx" ON "sessions" ("token_hash");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "sessions_user_idx" ON "sessions" ("user_id");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "sessions_expiry_idx" ON "sessions" ("expires_at");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "exams" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -51,7 +69,9 @@ CREATE TABLE IF NOT EXISTS "exams" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "exams_slug_uidx" ON "exams" ("slug");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "exam_sections" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -66,8 +86,11 @@ CREATE TABLE IF NOT EXISTS "exam_sections" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "exam_sections_exam_slug_uidx" ON "exam_sections" ("exam_id","slug");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "exam_sections_exam_order_idx" ON "exam_sections" ("exam_id","display_order");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "subjects" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -78,7 +101,9 @@ CREATE TABLE IF NOT EXISTS "subjects" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "subjects_slug_uidx" ON "subjects" ("slug");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "topics" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -92,9 +117,13 @@ CREATE TABLE IF NOT EXISTS "topics" (
   "updated_at" timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT "topics_parent_topic_id_topics_id_fk" FOREIGN KEY ("parent_topic_id") REFERENCES "topics"("id") ON DELETE SET NULL
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "topics_subject_idx" ON "topics" ("subject_id");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "topics_parent_idx" ON "topics" ("parent_topic_id");
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "topics_subject_slug_uidx" ON "topics" ("subject_id","slug");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "subtopics" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -106,8 +135,11 @@ CREATE TABLE IF NOT EXISTS "subtopics" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "subtopics_topic_idx" ON "subtopics" ("topic_id");
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "subtopics_topic_slug_uidx" ON "subtopics" ("topic_id","slug");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "sources" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -120,7 +152,9 @@ CREATE TABLE IF NOT EXISTS "sources" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "sources_kind_idx" ON "sources" ("kind");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "questions" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -147,11 +181,17 @@ CREATE TABLE IF NOT EXISTS "questions" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "questions_exam_year_slot_idx" ON "questions" ("exam_id","exam_year","exam_slot");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "questions_section_topic_idx" ON "questions" ("exam_section_id","topic_id");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "questions_verification_idx" ON "questions" ("verification_status");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "questions_published_idx" ON "questions" ("is_published");
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "questions_fingerprint_uidx" ON "questions" ("content_fingerprint");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "question_options" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -163,8 +203,11 @@ CREATE TABLE IF NOT EXISTS "question_options" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "question_options_question_key_uidx" ON "question_options" ("question_id","option_key");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "question_options_question_order_idx" ON "question_options" ("question_id","display_order");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "solutions" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -178,7 +221,9 @@ CREATE TABLE IF NOT EXISTS "solutions" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "solutions_question_idx" ON "solutions" ("question_id");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "tests" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -193,7 +238,9 @@ CREATE TABLE IF NOT EXISTS "tests" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "tests_slug_uidx" ON "tests" ("slug");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "test_sections" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -207,7 +254,9 @@ CREATE TABLE IF NOT EXISTS "test_sections" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "test_sections_test_order_idx" ON "test_sections" ("test_id","display_order");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "test_questions" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -219,8 +268,11 @@ CREATE TABLE IF NOT EXISTS "test_questions" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "test_questions_section_question_uidx" ON "test_questions" ("test_section_id","question_id");
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "test_questions_section_order_uidx" ON "test_questions" ("test_section_id","display_order");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "attempts" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -238,14 +290,21 @@ CREATE TABLE IF NOT EXISTS "attempts" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "user_id" uuid;
+--> statement-breakpoint
 DO $ BEGIN
  IF NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conrelid = 'attempts'::regclass AND c.confrelid = 'users'::regclass AND c.contype = 'f' AND pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY (user_id)%') THEN
   ALTER TABLE "attempts" ADD CONSTRAINT "attempts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL;
+--> statement-breakpoint
  END IF;
+--> statement-breakpoint
 END $;
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "attempts_user_started_idx" ON "attempts" ("user_id","started_at");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "attempts_test_status_idx" ON "attempts" ("test_id","status");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "attempt_responses" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -260,8 +319,11 @@ CREATE TABLE IF NOT EXISTS "attempt_responses" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "attempt_responses_attempt_question_uidx" ON "attempt_responses" ("attempt_id","question_id");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "attempt_responses_attempt_idx" ON "attempt_responses" ("attempt_id");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "study_resources" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -278,8 +340,11 @@ CREATE TABLE IF NOT EXISTS "study_resources" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "study_resources_slug_uidx" ON "study_resources" ("slug");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "study_resources_topic_idx" ON "study_resources" ("topic_id");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "colleges" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -297,8 +362,11 @@ CREATE TABLE IF NOT EXISTS "colleges" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "colleges_slug_uidx" ON "colleges" ("slug");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "colleges_status_idx" ON "colleges" ("status");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "college_programs" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -317,8 +385,11 @@ CREATE TABLE IF NOT EXISTS "college_programs" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "college_programs_college_idx" ON "college_programs" ("college_id");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "college_programs_published_idx" ON "college_programs" ("is_published");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "admission_events" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -337,8 +408,11 @@ CREATE TABLE IF NOT EXISTS "admission_events" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "admission_events_starts_idx" ON "admission_events" ("starts_at");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "admission_events_published_idx" ON "admission_events" ("is_published");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "revision_items" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -356,8 +430,11 @@ CREATE TABLE IF NOT EXISTS "revision_items" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "revision_items_user_question_uidx" ON "revision_items" ("user_id","question_id");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "revision_items_user_due_idx" ON "revision_items" ("user_id","due_at");
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS "content_entries" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -379,7 +456,12 @@ CREATE TABLE IF NOT EXISTS "content_entries" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "content_entries_slug_uidx" ON "content_entries" ("slug");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "content_entries_status_type_idx" ON "content_entries" ("status","entry_type");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "content_entries_topic_idx" ON "content_entries" ("topic_id");
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "content_entries_source_idx" ON "content_entries" ("source_id");
+--> statement-breakpoint
