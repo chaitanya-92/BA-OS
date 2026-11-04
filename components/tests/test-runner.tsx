@@ -240,7 +240,7 @@ export function TestRunner({ slug }: { slug: string }) {
           </div>
           <p className="mt-6 text-xs text-[#817b72]">Time used: {formatTime(result.timeSpentSeconds)} · Attempt ID: {result.attemptId}</p>
         </div>
-        <Link href="/tests" className="btn btn-neutral mt-7 rounded-full normal-case">Return to test library <ArrowRightIcon className="size-4"/></Link>
+        <div className="mt-7 flex flex-wrap gap-3"><Link href={`/attempts/${result.attemptId}`} className="btn btn-neutral rounded-full normal-case">Review answers <ArrowRightIcon className="size-4"/></Link><Link href="/tests" className="btn btn-ghost rounded-full normal-case">Return to test library</Link></div>
       </div>
     </main>
   );
