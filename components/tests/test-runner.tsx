@@ -103,10 +103,11 @@ export function TestRunner({ slug }: { slug: string }) {
           }
         }
         setStartedAt(start);
+        setStarted(Boolean(start));
         const firstQuestionId = data.sections[0]?.questions[0]?.id;
         if (firstQuestionId) saved[firstQuestionId] = { ...(saved[firstQuestionId] ?? emptyResponse()), visited: true };
         setResponses(saved);
-        setRemaining(Math.max(0, data.durationMinutes * 60 - Math.floor((Date.now() - new Date(start).getTime()) / 1000)));
+        setRemaining(start ? Math.max(0, data.durationMinutes * 60 - Math.floor((Date.now() - new Date(start).getTime()) / 1000)) : data.durationMinutes * 60);
       })
       .catch((cause: unknown) => {
         if (cause instanceof Error && cause.name === "AbortError") return;
