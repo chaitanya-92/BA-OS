@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowLeftIcon, CheckCircleIcon, ClockIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ClockIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { LearningCallout } from "@/components/learning/learning-callout";
 
 type ReviewQuestion = {
@@ -66,8 +65,7 @@ export function AttemptReview({ attemptId }: { attemptId: string }) {
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95"><div className="page-shell flex h-[72px] items-center justify-between"><Link href="/tests" className="inline-flex items-center gap-2 text-xs text-[#716c63]"><ArrowLeftIcon className="size-4"/> Test library</Link><span className="font-display text-lg font-bold">MBA OS<span className="text-[var(--accent)]">.</span></span></div></header>
-      <section className="page-shell pb-8 pt-12 sm:pt-16">
+            <section className="page-shell pb-8 pt-12 sm:pt-16">
         <p className="eyebrow">Attempt analysis</p>
         <h1 className="editorial-heading mt-4 text-5xl">Learn from every response.</h1>
         <p className="mt-3 text-sm text-[#817b72]">Submitted {attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleString("en-IN") : "—"} · Attempt {attempt.id.slice(0,8)}</p>
