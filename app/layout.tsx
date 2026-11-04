@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { DM_Sans, IBM_Plex_Mono, Playfair_Display } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const display = Playfair_Display({ subsets: ["latin"], variable: "--font-display", display: "swap" });
 const sans = DM_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   title: "MBA OS — The MBA Aspirant's Companion",
@@ -15,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" data-theme="mba-paper"><body className={display.variable + " " + sans.variable + " " + mono.variable}>{children}<Toaster position="bottom-right" richColors closeButton /></body></html>;
+  return <html lang="en" data-theme="mba-paper"><body className={sans.variable}>{children}<Toaster position="bottom-right" richColors closeButton /></body></html>;
 }
