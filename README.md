@@ -27,7 +27,7 @@ Imported educational data must retain source attribution, page/slot metadata, an
 
 ## Database foundation
 
-The initial Drizzle schema and Neon connection are in `lib/db`. Generate and review the first migration locally before applying it to Neon:
+The initial Drizzle schema and Neon connection are in `lib/db`. Apply the committed initial schema migration to Neon:
 
 ```bash
 npm install
@@ -38,7 +38,7 @@ npm run db:migrate
 npm run dev
 ```
 
-Check `/api/health` for database connectivity. Generate and apply the schema migration, then run `npm run db:seed` to add the initial CAT, XAT, SNAP, NMAT and CMAT exam taxonomy. The dedicated PYQ library is available at `/pyqs`, the topic accordion learning library at `/learn`, the mock/sectional test catalogue at `/tests`, the source-aware college directory at `/colleges`, the admission calendar at `/calendar`, and the admin question review workspace at `/admin/questions`, and the notes/formulas/traps authoring workspace at `/admin/content`. Student accounts use `/register` and `/login`; the personal dashboard is at `/dashboard`, attempt history at `/attempts`, and spaced revision at `/revision`. Completed test attempts include a detailed answer review. Public question endpoints only return published records. The protected ingestion endpoint requires `ADMIN_IMPORT_TOKEN` and always queues imported questions as unpublished for review. See `docs/database-setup.md` for details.
+Check `/api/health` for database connectivity. Apply the committed migration, then run `npm run db:seed` and `npm run db:seed:content` to add the initial CAT, XAT, SNAP, NMAT and CMAT exam taxonomy. The dedicated PYQ library is available at `/pyqs`, the topic accordion learning library at `/learn`, the mock/sectional test catalogue at `/tests`, the source-aware college directory at `/colleges`, the admission calendar at `/calendar`, and the admin question review workspace at `/admin/questions`, and the notes/formulas/traps authoring workspace at `/admin/content`. Student accounts use `/register` and `/login`; the personal dashboard is at `/dashboard`, attempt history at `/attempts`, and spaced revision at `/revision`. Completed test attempts include a detailed answer review. Public question endpoints only return published records. The protected ingestion endpoint requires `ADMIN_IMPORT_TOKEN` and always queues imported questions as unpublished for review. See `docs/database-setup.md` for details.
 
 ## Current implementation
 
