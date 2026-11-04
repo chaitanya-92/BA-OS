@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { SiteHeader } from "@/components/site-header";
 
 const sans = DM_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
@@ -13,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" data-theme="mba-paper"><body className={sans.variable}>{children}<Toaster position="bottom-right" richColors closeButton /></body></html>;
+  return <html lang="en" data-theme="mba-paper"><body className={sans.variable}><SiteHeader />{children}<Toaster position="bottom-right" richColors closeButton /></body></html>;
 }
