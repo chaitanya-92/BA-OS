@@ -39,9 +39,12 @@ Question records preserve exam year, slot, source reference, source page, source
 - `GET /api/resources`: returns published learning resources with subject/topic filters.
 - `GET /api/tests`: returns published test metadata.
 - `GET /api/tests/:slug`: returns a published test and questions/options without exposing answer keys.
+- `GET /api/attempts/:id`: returns the completed attempt's score, submitted responses, verified answer keys and explanations.
 - `POST /api/tests/:slug/submit`: validates assignment membership, grades against stored answer keys and saves an anonymous attempt.
 - `GET /api/questions`: returns published questions with validated filters and bounded offset pagination.
 - `GET /api/questions/:id`: returns a published question, options and available explanations.
+- `GET /api/colleges`: returns active colleges with published MBA programmes.
+- `GET /api/calendar`: returns published entrance and admission events, including source and verification metadata.
 - `GET /api/admin/questions`: lists pending questions or returns full answer-key details when an `id` query parameter is supplied.
 - `POST /api/admin/questions`: imports one question using the `x-admin-import-token` header. It always creates an unpublished, unreviewed record; content fingerprinting is scoped by exam/year/slot/source reference.
 - `PATCH /api/admin/questions`: verifies and publishes an eligible question or marks it disputed. MCQs require a correct option; non-MCQs require a verified answer key.
