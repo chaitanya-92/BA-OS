@@ -1,5 +1,5 @@
 "use client";
-import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, MagnifyingGlassIcon, Bars3Icon, PencilSquareIcon, PlayCircleIcon, QueueListIcon, SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, MagnifyingGlassIcon, Bars3Icon, ChevronDownIcon, PencilSquareIcon, PlayCircleIcon, QueueListIcon, SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,11 +9,35 @@ import { useEffect, useMemo, useRef, useState } from "react";
 gsap.registerPlugin(ScrollTrigger);
 
 const nav = [
-  { label:"PYQ Library", href:"#pyqs" },
-  { label:"Mock Tests", href:"#mock-tests" },
-  { label:"Section Tests", href:"#section-tests" },
-  { label:"Entrance Dates", href:"#entrance-dates" },
-  { label:"Resources", href:"#resources" },
+  { label:"PYQ Library", href:"#pyqs", description:"Find questions by exam, section and topic.", items:[
+    { label:"Browse all questions", detail:"Explore the question archive", href:"#pyqs" },
+    { label:"Quantitative Aptitude", detail:"Arithmetic, algebra and geometry", href:"#sections" },
+    { label:"Data Interpretation & LR", detail:"Charts, arrangements and games", href:"#sections" },
+    { label:"Verbal Ability & RC", detail:"Reading and verbal practice", href:"#sections" },
+    { label:"Topic trends", detail:"Review the supplied topic priorities", href:"#topic-trends" },
+  ]},
+  { label:"Mock Tests", href:"#mock-tests", description:"Prepare in a timed exam environment.", items:[
+    { label:"Full-length CAT mocks", detail:"Timed, exam-style attempts", href:"#mock-tests" },
+    { label:"Mock test review", detail:"Analyse attempts and mistakes", href:"#intelligence" },
+    { label:"Test strategy", detail:"Plan your next attempt", href:"#mock-tests" },
+  ]},
+  { label:"Section Tests", href:"#section-tests", description:"Practise one section at a time.", items:[
+    { label:"Quantitative Aptitude", detail:"Build accuracy and speed", href:"#section-tests" },
+    { label:"DILR", detail:"Practise sets under time pressure", href:"#section-tests" },
+    { label:"VARC", detail:"Improve reading and verbal ability", href:"#section-tests" },
+    { label:"Topic practice", detail:"Revise concepts before attempting", href:"#resources" },
+  ]},
+  { label:"Entrance Dates", href:"#entrance-dates", description:"Keep application milestones in one place.", items:[
+    { label:"Exam calendar", detail:"Important exam milestones", href:"#entrance-dates" },
+    { label:"Application windows", detail:"Track registrations and deadlines", href:"#entrance-dates" },
+    { label:"Admit cards & results", detail:"Keep key updates organised", href:"#entrance-dates" },
+  ]},
+  { label:"Resources", href:"#resources", description:"Study material connected to your preparation.", items:[
+    { label:"Concept library", detail:"Learn topics from the fundamentals", href:"#resources" },
+    { label:"Formula sheets", detail:"Quick topic-wise revision", href:"#resources" },
+    { label:"Traps & shortcuts", detail:"Avoid common mistakes", href:"#resources" },
+    { label:"Lecture directory", detail:"Browse your learning sources", href:"#lecture-library" },
+  ]},
 ];
 
 const modules = [
@@ -58,7 +82,7 @@ function Header() {
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setSearch(true); }
-      if (event.key === "Escape") setSearch(false);
+      if (event.key === "Escape") { setSearch(false); setMobile(false); }
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
@@ -67,32 +91,45 @@ function Header() {
     const q = query.trim().toLowerCase();
     return q ? searchLinks.filter((x) => x.label.toLowerCase().includes(q)) : searchLinks.slice(0,6);
   }, [query]);
+
+  const renderDropdown = (item: typeof nav[number], compact = false) => (
+    <div className={"dropdown dropdown-hover " + (compact ? "dropdown-end w-full" : "dropdown-center")}>
+      <button type="button" tabIndex={0} aria-haspopup="true" className={compact ? "flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm hover:bg-black/5" : "nav-link inline-flex items-center gap-1.5 py-3"}>
+        <span>{item.label}</span><ChevronDownIcon className={"size-3.5 opacity-60 transition-transform duration-200 group-hover:rotate-180 " + (compact ? "" : "")}/>
+      </button>
+      <ul tabIndex={0} role="menu" className={"dropdown-content z-[60] mt-2 rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-2 shadow-[0_18px_50px_rgba(25,23,19,.14)] " + (compact ? "menu relative visible w-full shadow-none" : "menu w-80")}>
+        <li className="menu-title px-3 pb-2 pt-2 text-[10px] font-semibold uppercase tracking-[.12em] text-[#8a8378]">{item.label}</li>
+        {item.items.map((entry) => <li key={entry.label}><a role="menuitem" href={entry.href} onClick={() => setMobile(false)} className="rounded-lg px-3 py-2.5 hover:bg-[#efede7]"><span className="block text-[13px] font-semibold text-[#242321]">{entry.label}</span><span className="mt-0.5 block whitespace-normal text-[11px] font-normal leading-5 text-[#817b72]">{entry.detail}</span></a></li>)}
+        <li className="mt-1 border-t border-[var(--line)] pt-1"><a href={item.href} onClick={() => setMobile(false)} className="rounded-lg px-3 py-2 text-xs font-semibold">Explore {item.label}<ArrowUpRightIcon className="size-3.5"/></a></li>
+      </ul>
+    </div>
+  );
+
   return <>
     <div className="border-b border-[var(--line)] bg-[#eeece5]">
       <div className="page-shell flex min-h-8 items-center justify-between gap-3 text-[10px] font-medium uppercase tracking-[.16em] text-[#68645d]"><span>THE MBA ASPIRANT’S COMPANION</span><span className="hidden sm:block">A considered way to prepare</span><span className="font-mono">EST. 2026</span></div>
     </div>
-    <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[rgba(247,245,240,.93)] backdrop-blur-xl">
-      <div className="page-shell flex h-[76px] items-center justify-between gap-5">
-        <Link href="#" aria-label="MBA OS home" className="flex shrink-0 items-center gap-2"><span className="font-display text-[2rem] font-semibold tracking-[-.075em]">MBA OS<span className="text-[var(--accent)]">.</span></span><span className="hidden border-l border-[var(--line)] pl-2 font-mono text-[9px] leading-tight tracking-wider text-[#777168] sm:inline">THE<br/>JOURNAL</span></Link>
-        <nav aria-label="Main navigation" className="hidden items-center gap-7 lg:flex">{nav.map((x) => <a className="nav-link" href={x.href} key={x.label}>{x.label}</a>)}</nav>
+    <header className="site-header sticky top-0 z-40 border-b border-[var(--line)] bg-[rgba(247,245,240,.93)] backdrop-blur-xl">
+      <div className="nav-inner page-shell flex h-[76px] items-center justify-between gap-5">
+        <Link href="#" aria-label="MBA OS home" className="flex shrink-0 items-center gap-2"><span className="font-display text-[1.8rem] font-bold tracking-[-.075em]">MBA OS<span className="text-[var(--accent)]">.</span></span><span className="hidden border-l border-[var(--line)] pl-2 text-[9px] font-medium leading-tight tracking-wider text-[#777168] sm:inline">THE<br/>JOURNAL</span></Link>
+        <nav aria-label="Main navigation" className="hidden items-center gap-5 xl:flex">{nav.map((item) => <div key={item.label}>{renderDropdown(item)}</div>)}</nav>
         <div className="flex items-center gap-2">
           <button className="btn btn-ghost btn-sm hidden border border-[var(--line)] bg-white/50 font-normal sm:inline-flex" onClick={() => setSearch(true)} aria-label="Open search"><MagnifyingGlassIcon className="size-4"/><span className="hidden md:inline">Search</span><kbd className="kbd kbd-xs hidden lg:inline-flex">⌘ K</kbd></button>
           <a href="#pyqs" className="btn btn-neutral btn-sm hidden rounded-full px-5 normal-case sm:inline-flex">Explore library <ArrowUpRightIcon className="size-4"/></a>
-          <button className="btn btn-ghost btn-square btn-sm lg:hidden" onClick={() => setMobile(!mobile)} aria-label="Toggle navigation" aria-expanded={mobile}>{mobile ? <XMarkIcon className="size-5"/> : <Bars3Icon className="size-5"/>}</button>
+          <button className="btn btn-ghost btn-square btn-sm xl:hidden" onClick={() => setMobile(!mobile)} aria-label="Toggle navigation" aria-expanded={mobile}>{mobile ? <XMarkIcon className="size-5"/> : <Bars3Icon className="size-5"/>}</button>
         </div>
       </div>
-      {mobile && <nav className="page-shell grid gap-1 border-t border-[var(--line)] py-3 lg:hidden">{nav.map((x) => <a className="rounded-lg px-3 py-3 text-sm hover:bg-black/5" href={x.href} key={x.label} onClick={() => setMobile(false)}>{x.label}</a>)}<button className="btn btn-outline mt-2 justify-start" onClick={() => { setMobile(false); setSearch(true); }}><MagnifyingGlassIcon className="size-4"/> Search library</button></nav>}
+      {mobile && <nav aria-label="Mobile navigation" className="page-shell grid gap-1 border-t border-[var(--line)] py-3 xl:hidden">{nav.map((item) => <div key={item.label}>{renderDropdown(item, true)}</div>)}<button className="btn btn-outline mt-2 justify-start" onClick={() => { setMobile(false); setSearch(true); }}><MagnifyingGlassIcon className="size-4"/> Search library</button></nav>}
     </header>
     {search && <div className="command-overlay fixed inset-0 z-[70] flex items-start justify-center px-4 pt-[12vh]" onMouseDown={(e) => { if (e.target === e.currentTarget) setSearch(false); }}>
       <section role="dialog" aria-modal="true" aria-label="Search MBA OS" className="w-full max-w-xl overflow-hidden rounded-2xl border border-[var(--line)] bg-[#fbfaf7] shadow-2xl">
         <div className="flex items-center gap-3 border-b border-[var(--line)] px-4"><MagnifyingGlassIcon className="size-5 text-[#777168]"/><input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search questions, topics, tests and resources…" className="h-14 w-full bg-transparent text-sm outline-none"/><kbd className="kbd kbd-sm">ESC</kbd></div>
-        <div className="p-2"><p className="px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-[#817b72]">Quick navigation</p>{matches.length ? matches.map((x) => <a key={x.label} href={x.href} onClick={() => { setSearch(false); setQuery(""); }} className="flex items-center justify-between rounded-xl px-3 py-3 text-sm hover:bg-[#efede7]"><span>{x.label}</span><span className="font-mono text-[10px] uppercase text-[#969087]">{x.type}</span></a>) : <p className="px-3 py-8 text-center text-sm text-[#777168]">No matching destinations.</p>}</div>
-        <div className="flex justify-between border-t border-[var(--line)] px-4 py-3 font-mono text-[10px] text-[#817b72]"><span>Search currently covers site navigation.</span><span>MBA OS</span></div>
+        <div className="p-2"><p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#817b72]">Quick navigation</p>{matches.length ? matches.map((x) => <a key={x.label} href={x.href} onClick={() => { setSearch(false); setQuery(""); }} className="flex items-center justify-between rounded-xl px-3 py-3 text-sm hover:bg-[#efede7]"><span>{x.label}</span><span className="text-[10px] font-medium uppercase text-[#969087]">{x.type}</span></a>) : <p className="px-3 py-8 text-center text-sm text-[#777168]">No matching destinations.</p>}</div>
+        <div className="flex justify-between border-t border-[var(--line)] px-4 py-3 text-[10px] text-[#817b72]"><span>Search currently covers site navigation.</span><span>MBA OS</span></div>
       </section>
     </div>}
   </>;
 }
-
 function Frequency({ value }: { value:string }) {
   const cls = value === "High" ? "border-[#cbd7ca] bg-[#edf2eb] text-[#526b55]" : value === "Medium–High" ? "border-[#e0d6c4] bg-[#f4efe5] text-[#8b6a3c]" : "border-[var(--line)] bg-[#f0eee9] text-[#6d685f]";
   return <span className={"inline-flex whitespace-nowrap rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase " + cls}>{value}</span>;
@@ -103,10 +140,29 @@ export function LandingPage() {
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.timeline({ defaults:{ ease:"power3.out" } })
+      .from(".site-header", { y:-18, autoAlpha:0, duration:.65 })
       .from(".hero-kicker", { y:12, autoAlpha:0, duration:.55 })
       .from(".hero-title", { y:28, autoAlpha:0, duration:.8 }, "-=.28")
       .from(".hero-copy, .hero-actions", { y:15, autoAlpha:0, duration:.6, stagger:.12 }, "-=.35")
       .from(".hero-art", { x:26, autoAlpha:0, duration:.8 }, "-=.6");
+    const headerEl = document.querySelector<HTMLElement>(".site-header");
+    const navInner = document.querySelector<HTMLElement>(".nav-inner");
+    if (headerEl && navInner) {
+      ScrollTrigger.create({
+        trigger: headerEl,
+        start: "top top",
+        onEnter: () => {
+          headerEl.classList.add("nav-scrolled");
+          gsap.to(navInner, { height: 64, duration: .24, ease: "power2.out", overwrite: true });
+          gsap.to(headerEl, { boxShadow: "0 8px 24px rgba(30,27,22,.07)", duration: .24, overwrite: true });
+        },
+        onLeaveBack: () => {
+          headerEl.classList.remove("nav-scrolled");
+          gsap.to(navInner, { height: 76, duration: .24, ease: "power2.out", overwrite: true });
+          gsap.to(headerEl, { boxShadow: "0 0px 0px rgba(30,27,22,0)", duration: .24, overwrite: true });
+        },
+      });
+    }
     gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => gsap.fromTo(el, { y:22, autoAlpha:0 }, { y:0, autoAlpha:1, duration:.7, ease:"power2.out", scrollTrigger:{ trigger:el, start:"top 88%", once:true } }));
   }, { scope:root });
 
