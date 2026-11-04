@@ -1,13 +1,13 @@
 import { sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    await db.execute(sql`select 1`);
+    await getDb().execute(sql`select 1`);
     return NextResponse.json({ status: "ok", database: "connected" });
   } catch {
     return NextResponse.json(
