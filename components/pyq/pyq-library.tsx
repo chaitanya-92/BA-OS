@@ -144,7 +144,7 @@ export function PyqLibrary() {
         <div className="mt-4 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div>
             <h1 className="text-4xl font-semibold tracking-[-.055em] sm:text-5xl">Previous-year questions</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[#716c63]">Search the question collection and narrow it down by year or difficulty. Each published record should retain its source and review status.</p>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[#716c63]">Search the question collection and narrow it down by exam, section, subject, topic, year or difficulty. Published records retain their source and review status.</p>
           </div>
           <div className="text-sm text-[#817b72]"><span className="font-semibold text-[#242321]">{loading ? "—" : items.length}</span> questions on this page</div>
         </div>
