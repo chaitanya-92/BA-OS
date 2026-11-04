@@ -154,7 +154,7 @@ export async function POST(
 
       const revisionCandidates = graded.filter((item) => !item.isCorrect);
       if (revisionCandidates.length) {
-        await tx.insert(revisionItems).values(revisionCandidates.map(({ assignment }) => ({ userId: user.id, questionId: assignment.questionId, sourceAttemptId: created.id, status: "due" })) ).onConflictDoNothing();
+        await tx.insert(revisionItems).values(revisionCandidates.map(({ assignment }) => ({ userId: user.id, questionId: assignment.questionId, sourceAttemptId: created.id, status: "due", dueAt: new Date() }))).onConflictDoUpdate({ target: [revisionItems.userId, revisionItems.questionId], set: { sourceAttemptId: created.id, status: "due", dueAt: new Date(), updatedAt: new Date() } });
       }
       if (graded.length) {
         await tx.insert(attemptResponses).values(graded.map(({ assignment, response }) => ({
