@@ -17,12 +17,12 @@ const nav = [
     { label:"Verbal Ability & RC", detail:"Reading and verbal practice", href:"#sections" },
     { label:"Topic trends", detail:"Review the supplied topic priorities", href:"#topic-trends" },
   ]},
-  { label:"Mock Tests", href:"#mock-tests", description:"Prepare in a timed exam environment.", items:[
-    { label:"Full-length CAT mocks", detail:"Timed, exam-style attempts", href:"#mock-tests" },
+  { label:"Mock Tests", href:"/tests", description:"Prepare in a timed exam environment.", items:[
+    { label:"Full-length CAT mocks", detail:"Timed, exam-style attempts", href:"/tests" },
     { label:"Mock test review", detail:"Analyse attempts and mistakes", href:"#intelligence" },
     { label:"Test strategy", detail:"Plan your next attempt", href:"#mock-tests" },
   ]},
-  { label:"Section Tests", href:"#section-tests", description:"Practise one section at a time.", items:[
+  { label:"Section Tests", href:"/tests", description:"Practise one section at a time.", items:[
     { label:"Quantitative Aptitude", detail:"Build accuracy and speed", href:"#section-tests" },
     { label:"DILR", detail:"Practise sets under time pressure", href:"#section-tests" },
     { label:"VARC", detail:"Improve reading and verbal ability", href:"#section-tests" },
@@ -33,8 +33,8 @@ const nav = [
     { label:"Application windows", detail:"Track registrations and deadlines", href:"#entrance-dates" },
     { label:"Admit cards & results", detail:"Keep key updates organised", href:"#entrance-dates" },
   ]},
-  { label:"Resources", href:"#resources", description:"Study material connected to your preparation.", items:[
-    { label:"Concept library", detail:"Learn topics from the fundamentals", href:"#resources" },
+  { label:"Resources", href:"/learn", description:"Study material connected to your preparation.", items:[
+    { label:"Concept library", detail:"Learn topics from the fundamentals", href:"/learn" },
     { label:"Formula sheets", detail:"Quick topic-wise revision", href:"#resources" },
     { label:"Traps & shortcuts", detail:"Avoid common mistakes", href:"#resources" },
     { label:"Lecture directory", detail:"Browse your learning sources", href:"#lecture-library" },
@@ -42,10 +42,10 @@ const nav = [
 ];
 
 const modules = [
-  { n:"01", title:"Previous-year questions", label:"Question library", text:"Browse by exam, year, slot, section, topic and subtopic. Every record will retain its source and review status.", href:"#pyqs", icon:BookOpenIcon },
-  { n:"02", title:"Full-length mock tests", label:"Exam simulator", text:"A focused test environment with timer, question palette, autosave and post-test review.", href:"#mock-tests", icon:ClockIcon },
-  { n:"03", title:"Sectional practice", label:"Targeted practice", text:"Timed VARC, DILR and QA practice with focused analysis after every attempt.", href:"#section-tests", icon:QueueListIcon },
-  { n:"04", title:"Concept library", label:"Learn and revise", text:"Connect fundamentals, worked examples, formulas, traps, revision notes and questions.", href:"#resources", icon:BookmarkSquareIcon },
+  { n:"01", title:"Previous-year questions", label:"Question library", text:"Browse by exam, year, slot, section, topic and subtopic. Every record will retain its source and review status.", href:"/pyqs", icon:BookOpenIcon },
+  { n:"02", title:"Full-length mock tests", label:"Exam simulator", text:"A focused test environment with timer, question palette, autosave and post-test review.", href:"/tests", icon:ClockIcon },
+  { n:"03", title:"Sectional practice", label:"Targeted practice", text:"Timed VARC, DILR and QA practice with focused analysis after every attempt.", href:"/tests", icon:QueueListIcon },
+  { n:"04", title:"Concept library", label:"Learn and revise", text:"Connect fundamentals, worked examples, formulas, traps, revision notes and questions.", href:"/learn", icon:BookmarkSquareIcon },
   { n:"05", title:"Performance intelligence", label:"Progress analysis", text:"Understand accuracy, time spent, weak topics and recurring mistakes.", href:"#intelligence", icon:ChartBarSquareIcon },
   { n:"06", title:"Exam calendar", label:"Stay organised", text:"Keep notifications, application windows, admit cards and result dates together.", href:"#entrance-dates", icon:CalendarDaysIcon },
 ];
