@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { ArrowUpRightIcon, CalendarDaysIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
+import { SiteHeader } from "@/components/site-header";
 
 type EventItem = {
   id: string;
@@ -82,7 +82,6 @@ export function AdmissionCalendar() {
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95"><div className="page-shell flex h-[76px] items-center justify-between"><Link href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link><Link href="/" className="text-sm text-[#706b63] hover:text-[#242321]">Back to overview</Link></div></header>
       <section className="page-shell pb-10 pt-14 sm:pt-20">
         <p className="eyebrow">The admissions calendar</p>
         <h1 className="editorial-heading mt-4 text-5xl sm:text-6xl">Never lose sight of a deadline.</h1>
