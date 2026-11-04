@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { ArrowUpRightIcon, BookOpenIcon, CalculatorIcon, LightBulbIcon, MagnifyingGlassIcon, DocumentTextIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
 import { LearningCallout } from "@/components/learning/learning-callout";
@@ -81,14 +82,13 @@ export function LearningLibrary() {
     });
   }, [resources, query, subjectId]);
 
-  const resourceCount = (topicId: string) => visibleResources.filter((item) => item.topicId === topicId).length;
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
       <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95">
         <div className="page-shell flex h-[76px] items-center justify-between">
-          <a href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></a>
-          <a href="/" className="text-sm text-[#706b63] hover:text-[#242321]">Back to overview</a>
+          <Link href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link>
+          <Link href="/" className="text-sm text-[#706b63] hover:text-[#242321]">Back to overview</Link>
         </div>
       </header>
 
