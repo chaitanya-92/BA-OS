@@ -57,13 +57,29 @@ export function PyqLibrary() {
 
   useEffect(() => {
     const controller = new AbortController();
+    fetch("/api/catalog", { signal: controller.signal, cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Catalogue unavailable");
+        return response.json();
+      })
+      .then((data) => setCatalog(data))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       setLoading(true);
       setError("");
       const params = new URLSearchParams({ limit: "20", offset: String(page * 20) });
       if (query.trim()) params.set("q", query.trim());
       if (year) params.set("year", year);
-      if (difficulty) params.set("difficulty", difficulty);\n      if (examId) params.set("examId", examId);\n      if (sectionId) params.set("sectionId", sectionId);\n      if (subjectId) params.set("subjectId", subjectId);\n      if (topicId) params.set("topicId", topicId);
+      if (difficulty) params.set("difficulty", difficulty);
+      if (examId) params.set("examId", examId);
+      if (sectionId) params.set("sectionId", sectionId);
+      if (subjectId) params.set("subjectId", subjectId);
+      if (topicId) params.set("topicId", topicId);
       try {
         const response = await fetch(`/api/questions?${params.toString()}`, {
           signal: controller.signal,
@@ -106,6 +122,10 @@ export function PyqLibrary() {
     setQuery("");
     setYear("");
     setDifficulty("");
+    setExamId("");
+    setSectionId("");
+    setSubjectId("");
+    setTopicId("");
     setPage(0);
   }
 
@@ -135,6 +155,34 @@ export function PyqLibrary() {
             <label className="flex h-12 items-center gap-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-4">
               <MagnifyingGlassIcon className="size-4 shrink-0 text-[#817b72]"/>
               <input value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }} placeholder="Search within question text…" className="w-full bg-transparent text-sm outline-none placeholder:text-[#a29b90]"/>
+            </label>
+            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
+              <span className="mr-2 text-xs text-[#817b72]">Exam</span>
+              <select value={examId} onChange={(event) => { setExamId(event.target.value); setSectionId(""); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
+                <option value="">All exams</option>
+                {catalog.exams.map((exam) => <option key={exam.id} value={exam.id}>{exam.name}</option>)}
+              </select>
+            </label>
+            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
+              <span className="mr-2 text-xs text-[#817b72]">Section</span>
+              <select value={sectionId} onChange={(event) => { setSectionId(event.target.value); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
+                <option value="">All sections</option>
+                {catalog.sections.filter((section) => !examId || section.examId === examId).map((section) => <option key={section.id} value={section.id}>{section.name}</option>)}
+              </select>
+            </label>
+            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
+              <span className="mr-2 text-xs text-[#817b72]">Subject</span>
+              <select value={subjectId} onChange={(event) => { setSubjectId(event.target.value); setTopicId(""); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
+                <option value="">All subjects</option>
+                {catalog.subjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}
+              </select>
+            </label>
+            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
+              <span className="mr-2 text-xs text-[#817b72]">Topic</span>
+              <select value={topicId} onChange={(event) => { setTopicId(event.target.value); setPage(0); }} disabled={!subjectId} className="w-full cursor-pointer bg-transparent text-sm outline-none disabled:opacity-50">
+                <option value="">All topics</option>
+                {catalog.topics.filter((topic) => topic.subjectId === subjectId).map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}
+              </select>
             </label>
             <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
               <span className="mr-2 text-xs text-[#817b72]">Year</span>
