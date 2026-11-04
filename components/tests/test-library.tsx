@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { ArrowRightIcon, BookOpenIcon, ClockIcon, DocumentTextIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
-import { SiteHeader } from "@/components/site-header";
 
 type TestItem = {
   id: string;
