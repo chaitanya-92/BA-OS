@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { LearningCallout } from "@/components/learning/learning-callout";
 import { Modal } from "@/components/ui/modal";
+import { SiteHeader } from "@/components/site-header";
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -146,12 +146,6 @@ export function PyqLibrary() {
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--line)] bg-[rgba(247,245,240,.94)]">
-        <div className="page-shell flex h-[76px] items-center justify-between">
-          <Link href="/" className="cursor-pointer text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link>
-          <Link href="/" className="cursor-pointer text-sm text-[#706b63] hover:text-[var(--ink)]">Back to overview</Link>
-        </div>
-      </header>
 
       <section className="page-shell pb-10 pt-14 sm:pt-20">
         <p className="eyebrow">The question archive</p>
