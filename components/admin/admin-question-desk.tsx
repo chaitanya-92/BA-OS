@@ -16,6 +16,8 @@ type PendingQuestion = {
   sourcePage: string | null;
   verificationStatus: string;
   createdAt: string;
+  options?: { id: string; optionKey: string; content: string; isCorrect: boolean | null }[];
+  solutions?: { methodName: string | null; content: string; answerText: string | null; answerVerification: string }[];
 };
 
 type ImportResult = { status: string; questionId: string | null; published: false; verificationStatus: string };
@@ -109,6 +111,25 @@ export function AdminQuestionDesk() {
     }
   }
 
+
+  async function openReview(item: PendingQuestion) {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/questions?id=${encodeURIComponent(item.id)}`, {
+        headers: { "x-admin-import-token": token },
+        cache: "no-store",
+      });
+      const data = await response.json() as PendingQuestion & { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Unable to load question details.");
+      setSelected(data);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Unable to load question details.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function review(action: "approve" | "reject") {
     if (!selected) return;
     setLoading(true);
@@ -166,7 +187,7 @@ export function AdminQuestionDesk() {
             {pending.map((item) => <article key={item.id} className="rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-4">
               <div className="flex flex-wrap items-center gap-2 text-[10px] text-[#817b72]"><span className="rounded-full bg-[#efede7] px-2 py-1 uppercase">{item.questionType.replaceAll("_"," ")}</span>{item.examYear && <span>{item.examYear}</span>}{item.examSlot && <span>· {item.examSlot}</span>}<span className="ml-auto">{item.verificationStatus.replaceAll("_"," ")}</span></div>
               <p className="mt-3 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-[#49463f]">{item.prompt}</p>
-              <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--line)] pt-3"><span className="truncate text-[10px] text-[#8a8378]">{item.sourceReference ?? "Source reference missing"}</span><button onClick={() => setSelected(item)} className="cursor-pointer text-xs font-semibold text-[var(--accent)]">Review record →</button></div>
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--line)] pt-3"><span className="truncate text-[10px] text-[#8a8378]">{item.sourceReference ?? "Source reference missing"}</span><button onClick={() => void openReview(item)} className="cursor-pointer text-xs font-semibold text-[var(--accent)]">Review record →</button></div>
             </article>)}
             {!loading && pending.length === 0 && <div className="rounded-xl border border-dashed border-[var(--line)] px-5 py-12 text-center"><CheckCircleIcon className="mx-auto size-7 text-[#71816d]"/><p className="mt-3 text-sm font-semibold">No questions waiting</p><p className="mt-1 text-xs text-[#817b72]">Load the queue using your admin token.</p></div>}
           </div>
@@ -178,6 +199,8 @@ export function AdminQuestionDesk() {
           <div className="mb-4 flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#817b72]"><ExclamationTriangleIcon className="size-4"/> Verify source rights, wording and answer key before approval</div>
           {selected.passage && <div className="mb-4 rounded-xl bg-[#efede7] p-4 text-sm leading-6">{selected.passage}</div>}
           <p className="whitespace-pre-wrap text-sm leading-7">{selected.prompt}</p>
+          {selected.options && selected.options.length > 0 && <div className="mt-5 space-y-2">{selected.options.map((option) => <div key={option.id} className="flex items-start justify-between gap-4 rounded-xl border border-[var(--line)] bg-white/70 p-3 text-sm"><span><strong className="mr-2 text-[#8b4a3f]">{option.optionKey}.</strong>{option.content}</span><span className={`shrink-0 text-[10px] font-semibold ${option.isCorrect ? "text-[#526b55]" : "text-[#817b72]"}`}>{option.isCorrect === true ? "Correct key" : option.isCorrect === false ? "Incorrect" : "Unmarked"}</span></div>)}</div>}
+          {selected.solutions?.map((solution,index) => <div key={index} className="mt-5 rounded-xl bg-[#efede7] p-4"><p className="text-[10px] font-semibold uppercase tracking-wider text-[#8b4a3f]">{solution.methodName ?? "Explanation"} · {solution.answerVerification.replaceAll("_"," ")}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6">{solution.content}</p>{solution.answerText && <p className="mt-2 text-xs font-semibold">Answer key: {solution.answerText}</p>}</div>)}
           <p className="mt-5 text-xs text-[#817b72]">Question type: {selected.questionType.replaceAll("_"," ")} · Difficulty: {selected.difficulty}</p>
           <div className="mt-6 flex flex-wrap justify-end gap-2 border-t border-[var(--line)] pt-5"><button onClick={() => void review("reject")} disabled={loading} className="btn btn-ghost rounded-full normal-case text-[#87483e]"><XCircleIcon className="size-4"/> Mark disputed</button><button onClick={() => void review("approve")} disabled={loading} className="btn btn-neutral rounded-full normal-case"><CheckCircleIcon className="size-4"/> Verify & publish</button></div>
         </>}
