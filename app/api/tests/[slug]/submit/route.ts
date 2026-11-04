@@ -148,7 +148,7 @@ export async function POST(
           isMarkedForReview: response?.isMarkedForReview ?? false,
           isVisited: response?.isVisited ?? false,
           timeSpentSeconds: response?.timeSpentSeconds ?? 0,
-          answeredAt: response?.selectedOptionIds.length ? new Date() : null,
+          answeredAt: (response?.selectedOptionIds.length ?? 0) > 0 || Boolean(response?.answerText?.trim()) ? new Date() : null,
         })));
       }
       return created;
