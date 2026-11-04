@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LearningCallout } from "@/components/learning/learning-callout";
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -250,7 +251,7 @@ export function PyqLibrary() {
           {selected && <>
             <p className="mt-6 whitespace-pre-wrap text-base leading-8">{selected.prompt}</p>
             {selected.options.length > 0 && <div className="mt-6 space-y-2">{selected.options.map((option) => <div key={option.id} className="rounded-xl border border-[var(--line)] bg-white/70 p-4 text-sm"><span className="mr-3 font-semibold text-[#8b4a3f]">{option.optionKey}.</span>{option.content}</div>)}</div>}
-            {selected.solutions.length > 0 ? <div className="mt-7 space-y-4 border-t border-[var(--line)] pt-6"><h3 className="text-sm font-semibold">Solution & explanation</h3>{selected.solutions.map((solution, index) => <div key={index}><p className="text-xs font-semibold uppercase tracking-wider text-[#8b4a3f]">{solution.methodName ?? "Explanation"}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#514d46]">{solution.content}</p>{solution.answerText && <p className="mt-3 text-sm font-semibold">Answer: {solution.answerText}</p>}</div>)}</div> : <p className="mt-6 rounded-xl bg-[#efede7] p-4 text-sm text-[#706b63]">A verified solution has not been added to this question yet.</p>}
+            {selected.solutions.length > 0 ? <div className="mt-7 space-y-4 border-t border-[var(--line)] pt-6"><h3 className="text-sm font-semibold">Solution & explanation</h3>{selected.solutions.map((solution, index) => <LearningCallout key={index} kind="note" title={solution.methodName ?? "Solution"}><p className="whitespace-pre-wrap">{solution.content}</p>{solution.answerText && <p className="mt-3 font-semibold">Answer: {solution.answerText}</p>}</LearningCallout>)}</div> : <p className="mt-6 rounded-xl bg-[#efede7] p-4 text-sm text-[#706b63]">A verified solution has not been added to this question yet.</p>}
           </>}
         </section>
       </div>}
