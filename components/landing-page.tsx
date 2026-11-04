@@ -1,49 +1,11 @@
 "use client";
-import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, PencilSquareIcon, PlayCircleIcon, QueueListIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, QueueListIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Link from "next/link";
-import { Modal } from "@/components/ui/modal";
 import { useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const nav = [
-  { label:"PYQ Library", href:"/pyqs", description:"Find questions by exam, section and topic.", items:[
-    { label:"Browse all questions", detail:"Explore the question archive", href:"/pyqs" },
-    { label:"Quantitative Aptitude", detail:"Arithmetic, algebra and geometry", href:"#sections" },
-    { label:"Data Interpretation & LR", detail:"Charts, arrangements and games", href:"#sections" },
-    { label:"Verbal Ability & RC", detail:"Reading and verbal practice", href:"#sections" },
-    { label:"Topic trends", detail:"Review the supplied topic priorities", href:"#topic-trends" },
-  ]},
-  { label:"Mock Tests", href:"/tests", description:"Prepare in a timed exam environment.", items:[
-    { label:"Full-length CAT mocks", detail:"Timed, exam-style attempts", href:"/tests" },
-    { label:"Mock test review", detail:"Analyse attempts and mistakes", href:"#intelligence" },
-    { label:"Test strategy", detail:"Plan your next attempt", href:"#mock-tests" },
-  ]},
-  { label:"Section Tests", href:"/tests", description:"Practise one section at a time.", items:[
-    { label:"Quantitative Aptitude", detail:"Build accuracy and speed", href:"#section-tests" },
-    { label:"DILR", detail:"Practise sets under time pressure", href:"#section-tests" },
-    { label:"VARC", detail:"Improve reading and verbal ability", href:"#section-tests" },
-    { label:"Topic practice", detail:"Revise concepts before attempting", href:"#resources" },
-  ]},
-  { label:"Entrance Dates", href:"/calendar", description:"Keep application milestones in one place.", items:[
-    { label:"Exam calendar", detail:"Important exam milestones", href:"/calendar" },
-    { label:"Application windows", detail:"Track registrations and deadlines", href:"/calendar" },
-    { label:"Admit cards & results", detail:"Keep key updates organised", href:"/calendar" },
-  ]},
-  { label:"B-Schools", href:"/colleges", description:"Explore institutions and programme data.", items:[
-    { label:"College directory", detail:"Browse active institution profiles", href:"/colleges" },
-    { label:"Programme comparison", detail:"Compare fees and sourced outcomes", href:"/colleges" },
-  ]},
-  { label:"Resources", href:"/learn", description:"Study material connected to your preparation.", items:[
-    { label:"Concept library", detail:"Learn topics from the fundamentals", href:"/learn" },
-    { label:"Formula sheets", detail:"Quick topic-wise revision", href:"#resources" },
-    { label:"Traps & shortcuts", detail:"Avoid common mistakes", href:"#resources" },
-    { label:"Lecture directory", detail:"Browse your learning sources", href:"#lecture-library" },
-  ]},
-];
 
 const modules = [
   { n:"01", title:"Previous-year questions", label:"Question library", text:"Browse by exam, year, slot, section, topic and subtopic. Every record will retain its source and review status.", href:"/pyqs", icon:BookOpenIcon },
@@ -70,15 +32,6 @@ const trends = [
   ["Progressions / Sequences","AP, GP and recurrence-style conditions","Medium"],
   ["System of Equations / Algebraic Conditions","Infinite or no solutions, common roots and reciprocal identities","Medium"],
   ["Data Pattern / Progressive Distribution","Natural numbers distributed into groups and series-defined patterns","Low–Medium"],
-];
-
-const searchLinks = [
-  ...nav.map((x) => ({ ...x, type:"Explore" })),
-  { label:"Quantitative Aptitude", href:"#sections", type:"Section" },
-  { label:"Data Interpretation & Logical Reasoning", href:"#sections", type:"Section" },
-  { label:"Verbal Ability & Reading Comprehension", href:"#sections", type:"Section" },
-  { label:"Topic weightage", href:"#topic-trends", type:"Analysis" },
-  { label:"Lecture library", href:"#lecture-library", type:"Resources" },
 ];
 
 function Frequency({ value }: { value:string }) {
