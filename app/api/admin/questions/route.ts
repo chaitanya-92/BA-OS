@@ -142,6 +142,9 @@ export async function PATCH(request: NextRequest) {
       const options = await db.select({ id: questionOptions.id, isCorrect: questionOptions.isCorrect })
         .from(questionOptions)
         .where(eq(questionOptions.questionId, question.id));
+      if ((question.questionType === "mcq_single" || question.questionType === "mcq_multiple") && options.length === 0) {
+        return NextResponse.json({ error: "Add answer options before publishing this MCQ." }, { status: 409 });
+      }
       if (options.length > 0) {
         const correct = options.filter((option) => option.isCorrect === true);
         if (correct.length === 0 || (question.questionType === "mcq_single" && correct.length !== 1)) {
