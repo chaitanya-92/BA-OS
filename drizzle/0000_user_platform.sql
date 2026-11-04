@@ -225,7 +225,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS "test_questions_section_order_uidx" ON "test_q
 CREATE TABLE IF NOT EXISTS "attempts" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "test_id" uuid NOT NULL REFERENCES "tests"("id") ON DELETE RESTRICT,
-  "user_id" uuid REFERENCES "users"("id") ON DELETE SET NULL,
+  "user_id" uuid,
+  CONSTRAINT "attempts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL,
   "status" "attempt_status" NOT NULL DEFAULT 'in_progress',
   "started_at" timestamptz NOT NULL DEFAULT now(),
   "submitted_at" timestamptz,
@@ -237,6 +238,12 @@ CREATE TABLE IF NOT EXISTS "attempts" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "user_id" uuid;
+DO $ BEGIN
+ IF NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conrelid = 'attempts'::regclass AND c.confrelid = 'users'::regclass AND c.contype = 'f' AND pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY (user_id)%') THEN
+  ALTER TABLE "attempts" ADD CONSTRAINT "attempts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL;
+ END IF;
+END $;
 CREATE INDEX IF NOT EXISTS "attempts_user_started_idx" ON "attempts" ("user_id","started_at");
 CREATE INDEX IF NOT EXISTS "attempts_test_status_idx" ON "attempts" ("test_id","status");
 
