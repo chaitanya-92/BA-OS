@@ -27,6 +27,8 @@
 - Tests, test sections and question assignments.
 - Attempts and per-question responses.
 - Topic-linked study resources.
+- College directory, MBA programme fees and placement outcome records with source references and reporting years.
+- Admission and entrance calendar events with official URLs, statuses and verification timestamps.
 
 Question records preserve exam year, slot, source reference, source page, source question number, content fingerprint, difficulty and verification status. Publication is opt-in: `is_published` defaults to false. The public question API only returns published records.
 
