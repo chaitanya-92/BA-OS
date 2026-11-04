@@ -247,3 +247,66 @@ export const studyResources = pgTable("study_resources", {
   uniqueIndex("study_resources_slug_uidx").on(table.slug),
   index("study_resources_topic_idx").on(table.topicId),
 ]);
+
+
+export const collegeStatusEnum = pgEnum("college_status", ["active", "inactive", "draft"]);
+export const admissionEventStatusEnum = pgEnum("admission_event_status", ["announced", "scheduled", "open", "closed", "tentative"]);
+
+export const colleges = pgTable("colleges", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 220 }).notNull(),
+  slug: varchar("slug", { length: 240 }).notNull(),
+  city: varchar("city", { length: 120 }),
+  state: varchar("state", { length: 120 }),
+  website: text("website"),
+  collegeType: varchar("college_type", { length: 80 }),
+  description: text("description"),
+  status: collegeStatusEnum("status").notNull().default("draft"),
+  sourceId: uuid("source_id").references(() => sources.id, { onDelete: "set null" }),
+  sourceReference: text("source_reference"),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  uniqueIndex("colleges_slug_uidx").on(table.slug),
+  index("colleges_status_idx").on(table.status),
+]);
+
+export const collegePrograms = pgTable("college_programs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  collegeId: uuid("college_id").notNull().references(() => colleges.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 200 }).notNull(),
+  degree: varchar("degree", { length: 80 }),
+  specialization: varchar("specialization", { length: 160 }),
+  feeMin: integer("fee_min"),
+  feeMax: integer("fee_max"),
+  averagePackage: integer("average_package"),
+  medianPackage: integer("median_package"),
+  placementYear: integer("placement_year"),
+  sourceId: uuid("source_id").references(() => sources.id, { onDelete: "set null" }),
+  sourceReference: text("source_reference"),
+  isPublished: boolean("is_published").notNull().default(false),
+  ...timestamps,
+}, (table) => [
+  index("college_programs_college_idx").on(table.collegeId),
+  index("college_programs_published_idx").on(table.isPublished),
+]);
+
+export const admissionEvents = pgTable("admission_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  examId: uuid("exam_id").references(() => exams.id, { onDelete: "set null" }),
+  collegeId: uuid("college_id").references(() => colleges.id, { onDelete: "set null" }),
+  title: varchar("title", { length: 220 }).notNull(),
+  eventType: varchar("event_type", { length: 80 }).notNull(),
+  startsAt: timestamp("starts_at", { withTimezone: true }),
+  endsAt: timestamp("ends_at", { withTimezone: true }),
+  status: admissionEventStatusEnum("status").notNull().default("tentative"),
+  officialUrl: text("official_url"),
+  sourceId: uuid("source_id").references(() => sources.id, { onDelete: "set null" }),
+  sourceReference: text("source_reference"),
+  lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
+  isPublished: boolean("is_published").notNull().default(false),
+  ...timestamps,
+}, (table) => [
+  index("admission_events_starts_idx").on(table.startsAt),
+  index("admission_events_published_idx").on(table.isPublished),
+]);
