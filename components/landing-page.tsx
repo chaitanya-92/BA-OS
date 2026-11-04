@@ -9,8 +9,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 gsap.registerPlugin(ScrollTrigger);
 
 const nav = [
-  { label:"PYQ Library", href:"#pyqs", description:"Find questions by exam, section and topic.", items:[
-    { label:"Browse all questions", detail:"Explore the question archive", href:"#pyqs" },
+  { label:"PYQ Library", href:"/pyqs", description:"Find questions by exam, section and topic.", items:[
+    { label:"Browse all questions", detail:"Explore the question archive", href:"/pyqs" },
     { label:"Quantitative Aptitude", detail:"Arithmetic, algebra and geometry", href:"#sections" },
     { label:"Data Interpretation & LR", detail:"Charts, arrangements and games", href:"#sections" },
     { label:"Verbal Ability & RC", detail:"Reading and verbal practice", href:"#sections" },
@@ -115,7 +115,7 @@ function Header() {
         <nav aria-label="Main navigation" className="hidden items-center gap-5 xl:flex">{nav.map((item) => <div key={item.label}>{renderDropdown(item)}</div>)}</nav>
         <div className="flex items-center gap-2">
           <button className="btn btn-ghost btn-sm hidden border border-[var(--line)] bg-white/50 font-normal sm:inline-flex" onClick={() => setSearch(true)} aria-label="Open search"><MagnifyingGlassIcon className="size-4"/><span className="hidden md:inline">Search</span><kbd className="kbd kbd-xs hidden lg:inline-flex">⌘ K</kbd></button>
-          <a href="#pyqs" className="btn btn-neutral btn-sm hidden rounded-full px-5 normal-case sm:inline-flex">Explore library <ArrowUpRightIcon className="size-4"/></a>
+          <a href="/pyqs" className="btn btn-neutral btn-sm hidden rounded-full px-5 normal-case sm:inline-flex">Explore library <ArrowUpRightIcon className="size-4"/></a>
           <button className="btn btn-ghost btn-square btn-sm xl:hidden" onClick={() => setMobile(!mobile)} aria-label="Toggle navigation" aria-expanded={mobile}>{mobile ? <XMarkIcon className="size-5"/> : <Bars3Icon className="size-5"/>}</button>
         </div>
       </div>
@@ -174,7 +174,7 @@ export function LandingPage() {
           <p className="hero-kicker eyebrow mb-7">A more deliberate way to prepare</p>
           <h1 className="hero-title editorial-heading text-[clamp(3.3rem,7.4vw,6.75rem)]">Make your preparation <span className="italic text-[var(--accent)]">count.</span></h1>
           <p className="hero-copy mt-7 max-w-[570px] text-lg leading-8 text-[#666159]">One considered workspace for previous-year questions, timed practice, concept revision and the decisions that shape your MBA journey.</p>
-          <div className="hero-actions mt-9 flex flex-wrap gap-3"><a href="#pyqs" className="btn btn-neutral rounded-full px-6 normal-case">Explore the PYQ library <ArrowRightIcon className="size-4"/></a><a href="#resources" className="btn btn-ghost rounded-full border border-[var(--line)] bg-white/45 px-6 normal-case">Browse study resources</a></div>
+          <div className="hero-actions mt-9 flex flex-wrap gap-3"><a href="/pyqs" className="btn btn-neutral rounded-full px-6 normal-case">Explore the PYQ library <ArrowRightIcon className="size-4"/></a><a href="#resources" className="btn btn-ghost rounded-full border border-[var(--line)] bg-white/45 px-6 normal-case">Browse study resources</a></div>
           <div className="mt-12 flex flex-wrap gap-x-6 gap-y-3 border-t border-[var(--line)] pt-5 text-xs text-[#777168]"><span className="inline-flex items-center gap-2"><CheckCircleIcon className="size-4 text-[var(--green)]"/> Source-aware learning</span><span className="inline-flex items-center gap-2"><CheckCircleIcon className="size-4 text-[var(--green)]"/> Focused exam practice</span><span className="inline-flex items-center gap-2"><CheckCircleIcon className="size-4 text-[var(--green)]"/> Built around your progress</span></div>
         </div>
         <div className="hero-art relative mx-auto w-full max-w-[520px]">
