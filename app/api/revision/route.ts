@@ -1,4 +1,4 @@
-import { and,asc,eq,sql } from "drizzle-orm";
+import { and,asc,eq } from "drizzle-orm";
 import { NextRequest,NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
