@@ -33,7 +33,11 @@ const nav = [
     { label:"Application windows", detail:"Track registrations and deadlines", href:"/calendar" },
     { label:"Admit cards & results", detail:"Keep key updates organised", href:"/calendar" },
   ]},
-  { label:"B-Schools", href:"/colleges", description:"Explore institutions and programme data.", items:[\n    { label:"College directory", detail:"Browse active institution profiles", href:"/colleges" },\n    { label:"Programme comparison", detail:"Compare fees and sourced outcomes", href:"/colleges" },\n  ]},\n  { label:"Resources", href:"/learn", description:"Study material connected to your preparation.", items:[
+  { label:"B-Schools", href:"/colleges", description:"Explore institutions and programme data.", items:[
+    { label:"College directory", detail:"Browse active institution profiles", href:"/colleges" },
+    { label:"Programme comparison", detail:"Compare fees and sourced outcomes", href:"/colleges" },
+  ]},
+  { label:"Resources", href:"/learn", description:"Study material connected to your preparation.", items:[
     { label:"Concept library", detail:"Learn topics from the fundamentals", href:"/learn" },
     { label:"Formula sheets", detail:"Quick topic-wise revision", href:"#resources" },
     { label:"Traps & shortcuts", detail:"Avoid common mistakes", href:"#resources" },
@@ -47,7 +51,8 @@ const modules = [
   { n:"03", title:"Sectional practice", label:"Targeted practice", text:"Timed VARC, DILR and QA practice with focused analysis after every attempt.", href:"/tests", icon:QueueListIcon },
   { n:"04", title:"Concept library", label:"Learn and revise", text:"Connect fundamentals, worked examples, formulas, traps, revision notes and questions.", href:"/learn", icon:BookmarkSquareIcon },
   { n:"05", title:"Performance intelligence", label:"Progress analysis", text:"Understand accuracy, time spent, weak topics and recurring mistakes.", href:"#intelligence", icon:ChartBarSquareIcon },
-  { n:"06", title:"Exam calendar", label:"Stay organised", text:"Keep notifications, application windows, admit cards and result dates together.", href:"#entrance-dates", icon:CalendarDaysIcon },\n  { n:"07", title:"B-School intelligence", label:"Compare with evidence", text:"Explore colleges, programmes, fees and placement outcomes with source-aware records.", href:"/colleges", icon:AcademicCapIcon },
+  { n:"06", title:"Exam calendar", label:"Stay organised", text:"Keep notifications, application windows, admit cards and result dates together.", href:"#entrance-dates", icon:CalendarDaysIcon },
+  { n:"07", title:"B-School intelligence", label:"Compare with evidence", text:"Explore colleges, programmes, fees and placement outcomes with source-aware records.", href:"/colleges", icon:AcademicCapIcon },
 ];
 
 // Transcribed from the user-supplied screenshot (labelled 2017–2024); not independently recalculated.
