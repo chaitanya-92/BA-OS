@@ -1,5 +1,6 @@
 import {
   boolean,
+  type AnyPgColumn,
   index,
   integer,
   jsonb,
@@ -65,7 +66,7 @@ export const subjects = pgTable("subjects", {
 export const topics = pgTable("topics", {
   id: uuid("id").defaultRandom().primaryKey(),
   subjectId: uuid("subject_id").notNull().references(() => subjects.id, { onDelete: "restrict" }),
-  parentTopicId: uuid("parent_topic_id"),
+  parentTopicId: uuid("parent_topic_id").references((): AnyPgColumn => topics.id, { onDelete: "set null" }),
   name: varchar("name", { length: 160 }).notNull(),
   slug: varchar("slug", { length: 180 }).notNull(),
   description: text("description"),
