@@ -9,7 +9,9 @@
 
 ## Phase 2 — Platform foundations (next priority)
 - Neon PostgreSQL connection, Drizzle schema, typed database client and Drizzle Kit migration tooling (schema committed; first migration still needs local generation and application).
-- Database health endpoint and validated, paginated published-question API.
+- Database health endpoint, catalogue API, validated/paginated published-question APIs and protected idempotent question-import endpoint.
+- Dedicated searchable PYQ library page with exam, section, subject, topic, year and difficulty filters.
+- Repeatable CAT/XAT/SNAP/NMAT/CMAT and QA/DILR/VARC taxonomy seed script.
 - Exam/section and subject/topic/subtopic taxonomy, source registry, question/options/solutions, tests/attempts/responses and study-resource tables.
 - Authentication and user profile (provider decision still pending).
 - Admin-only import and review workflows.
