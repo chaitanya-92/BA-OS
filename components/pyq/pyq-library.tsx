@@ -175,7 +175,7 @@ export function PyqLibrary() {
               <span className="mr-2 text-xs text-[#817b72]">Section</span>
               <select value={sectionId} onChange={(event) => { setSectionId(event.target.value); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
                 <option value="">All sections</option>
-                {catalog.sections.filter((section) => !examId || section.examId === examId).map((section) => <option key={section.id} value={section.id}>{section.name}</option>)}
+                {(examId ? catalog.exams.filter((exam) => exam.id === examId) : catalog.exams).map((exam) => <optgroup key={exam.id} label={exam.name}>{catalog.sections.filter((section) => section.examId === exam.id).map((section) => <option key={section.id} value={section.id}>{section.name}</option>)}</optgroup>)}
               </select>
             </label>
             <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
