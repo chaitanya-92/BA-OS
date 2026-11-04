@@ -47,7 +47,8 @@ Question records preserve exam year, slot, source reference, source page, source
 - `PATCH /api/profile`: updates the signed-in student's profile.
 - `GET /api/dashboard`, `GET /api/attempts`: personal performance summary and attempt history.
 - `GET /api/revision`, `POST /api/revision`: spaced-repetition queue and review scheduling.
-- `GET/POST/PATCH /api/admin/content`: protected bulk content ingestion and draft review.\n- `GET /api/questions`: returns published questions with validated filters and bounded offset pagination.
+- `GET/POST/PATCH /api/admin/content`: protected bulk content ingestion and draft review.
+- `GET /api/questions`: returns published questions with validated filters and bounded offset pagination.
 - `GET /api/questions/:id`: returns a published question, options and available explanations.
 - `GET /api/colleges`: returns active colleges with published MBA programmes.
 - `GET /api/calendar`: returns published entrance and admission events, including source and verification metadata.
