@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRightIcon, CalendarDaysIcon, ClockIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { ArrowUpRightIcon, CalendarDaysIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
 
 type EventItem = {
