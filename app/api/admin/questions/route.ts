@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
   const payload = parsed.data;
   const fingerprint = createHash("sha256")
-    .update(payload.prompt.replace(/\s+/g, " ").trim().toLowerCase())
+    .update([payload.examId ?? "unknown-exam", payload.examYear ?? "unknown-year", payload.examSlot ?? "unknown-slot", payload.sourceReference ?? "unknown-source", payload.prompt.replace(/\s+/g, " ").trim().toLowerCase()].join("|"))
     .digest("hex");
 
   try {
