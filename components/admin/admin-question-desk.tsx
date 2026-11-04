@@ -155,9 +155,6 @@ export function AdminQuestionDesk() {
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95">
-        <div className="page-shell flex h-[76px] items-center justify-between"><Link href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link><span className="inline-flex items-center gap-2 text-xs text-[#817b72]"><LockClosedIcon className="size-4"/> Admin workspace</span></div>
-      </header>
       <section className="page-shell pb-10 pt-14 sm:pt-20">
         <p className="eyebrow">Content operations</p>
         <h1 className="editorial-heading mt-4 text-5xl sm:text-6xl">Question import & review.</h1>
