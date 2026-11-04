@@ -77,6 +77,9 @@ export function TestRunner({ slug }: { slug: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [showPalette, setShowPalette] = useState(false);
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => { fetch("/api/auth/me", { cache: "no-store" }).then((response) => response.json()).then((data) => setAuthenticated(Boolean(data.user))).catch(() => setAuthenticated(false)); }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -181,6 +184,7 @@ export function TestRunner({ slug }: { slug: string }) {
 
   function startTest() {
     if (!test || started) return;
+    if (!authenticated) { setError("Sign in before starting so your result can be saved to your personal history."); return; }
     const start = new Date().toISOString();
     setStartedAt(start);
     setRemaining(test.durationMinutes * 60);
@@ -340,7 +344,7 @@ export function TestRunner({ slug }: { slug: string }) {
             <li>Use the question palette to navigate and mark questions for review.</li>
             <li>Submission is final. Your score is calculated using the configured marking scheme.</li>
           </ul>
-          <div className="mt-7 flex justify-end"><button onClick={startTest} className="btn btn-neutral rounded-full px-6 normal-case">Start test <ArrowRightIcon className="size-4"/></button></div>
+          <div className="mt-7 flex flex-wrap items-center justify-between gap-3">{authenticated===false&&<Link href="/login" className="text-xs font-semibold text-[#8b4a3f] underline underline-offset-4">Sign in to continue</Link>}<button disabled={authenticated!==true} onClick={startTest} className="btn btn-neutral rounded-full px-6 normal-case disabled:opacity-50">{authenticated===null?"Checking account…":"Start test" <ArrowRightIcon className="size-4"/></button></div>
         </>}
       </Modal>
 
