@@ -43,7 +43,6 @@ export async function POST(
     const db = getDb();
     const [test] = await db.select({
       id: tests.id,
-      durationMinutes: tests.durationMinutes,
     }).from(tests).where(and(eq(tests.slug, slug), eq(tests.isPublished, true))).limit(1);
     if (!test) return NextResponse.json({ error: "Test not found." }, { status: 404 });
 
@@ -54,6 +53,7 @@ export async function POST(
     }).from(testSections).where(eq(testSections.testId, test.id));
 
     const sectionIds = sections.map((section) => section.id);
+    if (sectionIds.length === 0) return NextResponse.json({ error: "This test has no configured sections." }, { status: 409 });
     const assigned = sectionIds.length ? await db.select({
       questionId: testQuestions.questionId,
       sectionId: testQuestions.testSectionId,
@@ -68,6 +68,8 @@ export async function POST(
     }
 
     const questionIds = assigned.map((row) => row.questionId);
+    if (questionIds.length === 0) return NextResponse.json({ error: "This test has no assigned questions." }, { status: 409 });
+    if (new Set(questionIds).size !== questionIds.length) return NextResponse.json({ error: "A question is assigned more than once in this test." }, { status: 409 });
     const publishedRows = questionIds.length ? await db.select({
       id: questions.id,
       questionType: questions.questionType,
@@ -77,6 +79,9 @@ export async function POST(
       return NextResponse.json({ error: "This test contains unavailable questions." }, { status: 409 });
     }
 
+    const submittedStart = new Date(parsed.data.startedAt);
+    if (submittedStart.getTime() > Date.now() + 60_000) return NextResponse.json({ error: "Invalid attempt start time." }, { status: 400 });
+    const trustedTimeSpent = Math.min(24 * 60 * 60, Math.max(0, Math.floor((Date.now() - submittedStart.getTime()) / 1000)));
     const sectionMap = new Map(sections.map((section) => [section.id, section]));
     let correctCount = 0;
     let incorrectCount = 0;
@@ -96,10 +101,12 @@ export async function POST(
 
       let isCorrect = false;
       if (questionType === "mcq_single" || questionType === "mcq_multiple") {
-        const correctOptions = await db.select({ id: questionOptions.id })
+        const allOptions = await db.select({ id: questionOptions.id, isCorrect: questionOptions.isCorrect })
           .from(questionOptions)
-          .where(and(eq(questionOptions.questionId, assignment.questionId), eq(questionOptions.isCorrect, true)));
-        const expected = new Set(correctOptions.map((option) => option.id));
+          .where(eq(questionOptions.questionId, assignment.questionId));
+        const allowed = new Set(allOptions.map((option) => option.id));
+        if (selected.some((id) => !allowed.has(id))) throw new Error("A selected option does not belong to its question.");
+        const expected = new Set(allOptions.filter((option) => option.isCorrect).map((option) => option.id));
         const actual = new Set(selected);
         isCorrect = expected.size > 0 && expected.size === actual.size && [...expected].every((id) => actual.has(id));
       } else {
@@ -136,7 +143,7 @@ export async function POST(
         correctCount,
         incorrectCount,
         unansweredCount,
-        timeSpentSeconds: parsed.data.timeSpentSeconds,
+        timeSpentSeconds: trustedTimeSpent,
       }).returning({ id: attempts.id });
 
       if (graded.length) {
@@ -161,7 +168,7 @@ export async function POST(
       incorrectCount,
       unansweredCount,
       totalQuestions: assigned.length,
-      timeSpentSeconds: parsed.data.timeSpentSeconds,
+      timeSpentSeconds: trustedTimeSpent,
     }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Submission could not be saved. Please try again." }, { status: 503 });
