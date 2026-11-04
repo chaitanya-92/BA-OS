@@ -71,6 +71,7 @@ export function TestRunner({ slug }: { slug: string }) {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<Record<string, SavedResponse>>({});
   const [startedAt, setStartedAt] = useState("");
+  const [started, setStarted] = useState(false);
   const [remaining, setRemaining] = useState(0);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -88,12 +89,12 @@ export function TestRunner({ slug }: { slug: string }) {
         setTest(data);
         const storageKey = `mba-os:test:${slug}`;
         const raw = window.sessionStorage.getItem(storageKey);
-        let start = new Date().toISOString();
+        let start = "";
         let saved: Record<string, SavedResponse> = {};
         if (raw) {
           try {
             const parsed = JSON.parse(raw) as { startedAt?: string; responses?: Record<string, SavedResponse> };
-            if (parsed.startedAt && Date.now() - new Date(parsed.startedAt).getTime() < data.durationMinutes * 60_000) {
+            if (parsed.startedAt && Date.now() - new Date(parsed.startedAt).getTime() >= 0 && Date.now() - new Date(parsed.startedAt).getTime() < data.durationMinutes * 60_000) {
               start = parsed.startedAt;
               saved = parsed.responses ?? {};
             }
@@ -116,9 +117,9 @@ export function TestRunner({ slug }: { slug: string }) {
   }, [slug]);
 
   useEffect(() => {
-    if (!test || !startedAt || result) return;
+    if (!test || !startedAt || !started || result) return;
     window.sessionStorage.setItem(`mba-os:test:${slug}`, JSON.stringify({ startedAt, responses }));
-  }, [test, slug, startedAt, responses, result]);
+  }, [test, slug, startedAt, started, responses, result]);
 
   const allQuestions = useMemo(() => test?.sections.flatMap((section) => section.questions) ?? [], [test]);
   const section = test?.sections[sectionIndex];
@@ -127,7 +128,7 @@ export function TestRunner({ slug }: { slug: string }) {
   const currentResponse = question ? responses[question.id] ?? emptyResponse() : emptyResponse();
 
   const submit = useCallback(async () => {
-    if (!test || !startedAt || submitting || result) return;
+    if (!test || !startedAt || !started || submitting || result) return;
     setSubmitting(true);
     try {
       const timeSpentSeconds = Math.max(0, test.durationMinutes * 60 - remaining);
@@ -164,10 +165,10 @@ export function TestRunner({ slug }: { slug: string }) {
     } finally {
       setSubmitting(false);
     }
-  }, [test, startedAt, submitting, result, remaining, allQuestions, responses, slug]);
+  }, [test, startedAt, started, submitting, result, remaining, allQuestions, responses, slug]);
 
   useEffect(() => {
-    if (!test || !startedAt || result) return;
+    if (!test || !startedAt || !started || result) return;
     const timer = window.setInterval(() => {
       const elapsed = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
       const next = Math.max(0, test.durationMinutes * 60 - elapsed);
@@ -175,7 +176,15 @@ export function TestRunner({ slug }: { slug: string }) {
       if (next === 0) void submit();
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [test, startedAt, result, submit]);
+  }, [test, startedAt, started, result, submit]);
+
+  function startTest() {
+    if (!test || started) return;
+    const start = new Date().toISOString();
+    setStartedAt(start);
+    setRemaining(test.durationMinutes * 60);
+    setStarted(true);
+  }
 
   function updateResponse(id: string, patch: Partial<SavedResponse>) {
     setResponses((current) => ({
@@ -307,6 +316,32 @@ export function TestRunner({ slug }: { slug: string }) {
       </div>
 
       {error && <div role="alert" className="fixed bottom-5 left-1/2 z-40 -translate-x-1/2 rounded-xl border border-[#e2c7bf] bg-[#fbf3f0] px-4 py-3 text-sm text-[#87483e] shadow-lg">{error}</div>}
+
+      <Modal
+        open={Boolean(test) && !started}
+        onClose={() => undefined}
+        title={test?.title ?? "Test instructions"}
+        description="Read the instructions before the timer begins."
+        size="lg"
+        showCloseButton={false}
+        closeOnBackdrop={false}
+      >
+        {test && <>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-xl bg-[#efede7] p-4"><p className="font-display text-2xl">{test.durationMinutes}</p><p className="text-[10px] uppercase tracking-wider text-[#817b72]">Minutes</p></div>
+            <div className="rounded-xl bg-[#efede7] p-4"><p className="font-display text-2xl">{test.questionCount}</p><p className="text-[10px] uppercase tracking-wider text-[#817b72]">Questions</p></div>
+            <div className="rounded-xl bg-[#efede7] p-4"><p className="font-display text-2xl">{test.sections.length}</p><p className="text-[10px] uppercase tracking-wider text-[#817b72]">Sections</p></div>
+          </div>
+          {test.instructions && <div className="mt-5 whitespace-pre-wrap text-sm leading-7 text-[#625d55]">{test.instructions}</div>}
+          <ul className="mt-5 list-disc space-y-2 pl-5 text-xs leading-6 text-[#817b72]">
+            <li>The timer begins only after you select Start test.</li>
+            <li>Your answers are saved in this browser tab so you can recover after a refresh.</li>
+            <li>Use the question palette to navigate and mark questions for review.</li>
+            <li>Submission is final. Your score is calculated using the configured marking scheme.</li>
+          </ul>
+          <div className="mt-7 flex justify-end"><button onClick={startTest} className="btn btn-neutral rounded-full px-6 normal-case">Start test <ArrowRightIcon className="size-4"/></button></div>
+        </>}
+      </Modal>
 
       <Modal open={reviewOpen} onClose={() => setReviewOpen(false)} title="Review before submission" description="Check your responses before ending this attempt." size="md">
         <div className="grid grid-cols-3 gap-2">
