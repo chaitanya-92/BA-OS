@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { LearningCallout } from "@/components/learning/learning-callout";
 import { Modal } from "@/components/ui/modal";
-import { SiteHeader } from "@/components/site-header";
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
