@@ -1,5 +1,6 @@
-import Link from "next/link";
 "use client";
+
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { ArrowRightIcon, BookOpenIcon, ClockIcon, DocumentTextIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
