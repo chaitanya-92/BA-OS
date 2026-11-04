@@ -227,7 +227,7 @@ export function TestRunner({ slug }: { slug: string }) {
   const isLastSection = sectionIndex === (test?.sections.length ?? 1) - 1;
 
   if (loading) return <main className="min-h-screen bg-[var(--paper)] p-6"><div className="mx-auto max-w-5xl animate-pulse space-y-5 pt-20"><div className="h-5 w-40 rounded bg-[#e9e5dc]"/><div className="h-14 w-2/3 rounded bg-[#e9e5dc]"/><div className="h-72 rounded-2xl bg-[#e9e5dc]"/></div></main>;
-  if (error && !test) return <main className="page-shell min-h-screen py-20"><p className="eyebrow">Test room</p><h1 className="mt-4 font-display text-3xl">Unable to open this test.</h1><p className="mt-3 text-sm text-[#817b72]">{error}</p><Link href="/tests" className="btn btn-outline mt-6 rounded-full">Back to tests</Link></main>;
+  if (error && !test) return <main className="page-shell min-h-screen py-20"><p className="eyebrow">Test room</p><h1 className="mt-4 font-display text-3xl">Unable to open this test.</h1><p className="mt-3 text-sm text-[#817b72]">{error}</p>{error.toLowerCase().includes("sign in")&&<Link href="/login" className="btn btn-neutral mt-4 rounded-full normal-case">Sign in to save your attempt</Link>}<Link href="/tests" className="btn btn-outline mt-6 rounded-full">Back to tests</Link></main>;
   if (result) return (
     <main className="min-h-screen bg-[var(--paper)]">
       <div className="page-shell max-w-4xl py-16 sm:py-24">
