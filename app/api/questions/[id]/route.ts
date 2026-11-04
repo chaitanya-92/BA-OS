@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { questionOptions, questions, solutions } from "@/lib/db/schema";
 
 export const runtime = "nodejs";
@@ -19,6 +19,7 @@ export async function GET(
   }
 
   try {
+    const db = getDb();
     const [question] = await db
       .select({
         id: questions.id,
