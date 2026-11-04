@@ -1,5 +1,5 @@
 "use client";
-import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, MagnifyingGlassIcon, MenuIcon, PencilSquareIcon, PlayCircleIcon, QueueListIcon, SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, MagnifyingGlassIcon, Bars3Icon, PencilSquareIcon, PlayCircleIcon, QueueListIcon, SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -78,7 +78,7 @@ function Header() {
         <div className="flex items-center gap-2">
           <button className="btn btn-ghost btn-sm hidden border border-[var(--line)] bg-white/50 font-normal sm:inline-flex" onClick={() => setSearch(true)} aria-label="Open search"><MagnifyingGlassIcon className="size-4"/><span className="hidden md:inline">Search</span><kbd className="kbd kbd-xs hidden lg:inline-flex">⌘ K</kbd></button>
           <a href="#pyqs" className="btn btn-neutral btn-sm hidden rounded-full px-5 normal-case sm:inline-flex">Explore library <ArrowUpRightIcon className="size-4"/></a>
-          <button className="btn btn-ghost btn-square btn-sm lg:hidden" onClick={() => setMobile(!mobile)} aria-label="Toggle navigation" aria-expanded={mobile}>{mobile ? <XMarkIcon className="size-5"/> : <MenuIcon className="size-5"/>}</button>
+          <button className="btn btn-ghost btn-square btn-sm lg:hidden" onClick={() => setMobile(!mobile)} aria-label="Toggle navigation" aria-expanded={mobile}>{mobile ? <XMarkIcon className="size-5"/> : <Bars3Icon className="size-5"/>}</button>
         </div>
       </div>
       {mobile && <nav className="page-shell grid gap-1 border-t border-[var(--line)] py-3 lg:hidden">{nav.map((x) => <a className="rounded-lg px-3 py-3 text-sm hover:bg-black/5" href={x.href} key={x.label} onClick={() => setMobile(false)}>{x.label}</a>)}<button className="btn btn-outline mt-2 justify-start" onClick={() => { setMobile(false); setSearch(true); }}><MagnifyingGlassIcon className="size-4"/> Search library</button></nav>}
