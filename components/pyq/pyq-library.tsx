@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { LearningCallout } from "@/components/learning/learning-callout";
+import { Modal } from "@/components/ui/modal";
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
   BookOpenIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  XMarkIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 
@@ -244,17 +244,20 @@ export function PyqLibrary() {
         </div>}
       </section>
 
-      {(detailLoading || selected) && <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/35 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
-        <section role="dialog" aria-modal="true" aria-label="Question details" className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--line)] bg-[#fbfaf7] p-6 shadow-2xl sm:p-8">
-          <div className="flex items-center justify-between"><p className="eyebrow">Question details</p><button onClick={() => setSelected(null)} className="btn btn-ghost btn-square btn-sm cursor-pointer" aria-label="Close"><XMarkIcon className="size-5"/></button></div>
-          {detailLoading && <div className="space-y-3 py-10"><div className="h-5 w-2/3 animate-pulse rounded bg-[#e9e5dc]"/><div className="h-20 animate-pulse rounded bg-[#e9e5dc]"/></div>}
-          {selected && <>
-            <p className="mt-6 whitespace-pre-wrap text-base leading-8">{selected.prompt}</p>
-            {selected.options.length > 0 && <div className="mt-6 space-y-2">{selected.options.map((option) => <div key={option.id} className="rounded-xl border border-[var(--line)] bg-white/70 p-4 text-sm"><span className="mr-3 font-semibold text-[#8b4a3f]">{option.optionKey}.</span>{option.content}</div>)}</div>}
-            {selected.solutions.length > 0 ? <div className="mt-7 space-y-4 border-t border-[var(--line)] pt-6"><h3 className="text-sm font-semibold">Solution & explanation</h3>{selected.solutions.map((solution, index) => <LearningCallout key={index} kind="note" title={solution.methodName ?? "Solution"}><p className="whitespace-pre-wrap">{solution.content}</p>{solution.answerText && <p className="mt-3 font-semibold">Answer: {solution.answerText}</p>}</LearningCallout>)}</div> : <p className="mt-6 rounded-xl bg-[#efede7] p-4 text-sm text-[#706b63]">A verified solution has not been added to this question yet.</p>}
-          </>}
-        </section>
-      </div>}
+      <Modal
+        open={detailLoading || Boolean(selected)}
+        onClose={() => setSelected(null)}
+        title="Question details"
+        description={selected ? [selected.examYear, selected.examSlot, prettyType(selected.questionType)].filter(Boolean).join(" · ") : "Loading question"}
+        size="lg"
+      >
+        {detailLoading && <div className="space-y-3 py-10"><div className="h-5 w-2/3 animate-pulse rounded bg-[#e9e5dc]"/><div className="h-20 animate-pulse rounded bg-[#e9e5dc]"/></div>}
+        {selected && <>
+          <p className="whitespace-pre-wrap text-base leading-8">{selected.prompt}</p>
+          {selected.options.length > 0 && <div className="mt-6 space-y-2">{selected.options.map((option) => <div key={option.id} className="rounded-xl border border-[var(--line)] bg-white/70 p-4 text-sm"><span className="mr-3 font-semibold text-[#8b4a3f]">{option.optionKey}.</span>{option.content}</div>)}</div>}
+          {selected.solutions.length > 0 ? <div className="mt-7 space-y-4 border-t border-[var(--line)] pt-6"><h3 className="text-sm font-semibold">Solution & explanation</h3>{selected.solutions.map((solution, index) => <LearningCallout key={index} kind="note" title={solution.methodName ?? "Solution"}><p className="whitespace-pre-wrap">{solution.content}</p>{solution.answerText && <p className="mt-3 font-semibold">Answer: {solution.answerText}</p>}</LearningCallout>)}</div> : <p className="mt-6 rounded-xl bg-[#efede7] p-4 text-sm text-[#706b63]">A verified solution has not been added to this question yet.</p>}
+        </>}
+      </Modal>
     </main>
   );
 }
