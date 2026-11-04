@@ -42,6 +42,11 @@ export function PyqLibrary() {
   const [query, setQuery] = useState("");
   const [year, setYear] = useState("");
   const [difficulty, setDifficulty] = useState("");
+  const [examId, setExamId] = useState("");
+  const [sectionId, setSectionId] = useState("");
+  const [subjectId, setSubjectId] = useState("");
+  const [topicId, setTopicId] = useState("");
+  const [catalog, setCatalog] = useState<{ exams: {id:string;name:string}[]; sections: {id:string;examId:string;name:string}[]; subjects: {id:string;name:string}[]; topics: {id:string;subjectId:string;name:string}[] }>({ exams:[], sections:[], subjects:[], topics:[] });
   const [page, setPage] = useState(0);
   const [items, setItems] = useState<Question[]>([]);
   const [hasMore, setHasMore] = useState(false);
@@ -58,7 +63,7 @@ export function PyqLibrary() {
       const params = new URLSearchParams({ limit: "20", offset: String(page * 20) });
       if (query.trim()) params.set("q", query.trim());
       if (year) params.set("year", year);
-      if (difficulty) params.set("difficulty", difficulty);
+      if (difficulty) params.set("difficulty", difficulty);\n      if (examId) params.set("examId", examId);\n      if (sectionId) params.set("sectionId", sectionId);\n      if (subjectId) params.set("subjectId", subjectId);\n      if (topicId) params.set("topicId", topicId);
       try {
         const response = await fetch(`/api/questions?${params.toString()}`, {
           signal: controller.signal,
@@ -81,7 +86,7 @@ export function PyqLibrary() {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [query, year, difficulty, page]);
+  }, [query, year, difficulty, examId, sectionId, subjectId, topicId, page]);
 
   async function openQuestion(id: string) {
     setDetailLoading(true);
@@ -126,7 +131,7 @@ export function PyqLibrary() {
 
       <section className="page-shell pb-20">
         <div className="rounded-2xl border border-[var(--line)] bg-white/65 p-4 sm:p-5">
-          <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_180px_190px_auto]">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <label className="flex h-12 items-center gap-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-4">
               <MagnifyingGlassIcon className="size-4 shrink-0 text-[#817b72]"/>
               <input value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }} placeholder="Search within question text…" className="w-full bg-transparent text-sm outline-none placeholder:text-[#a29b90]"/>
@@ -162,7 +167,7 @@ export function PyqLibrary() {
               <BookOpenIcon className="mx-auto size-8 text-[#928b80]"/>
               <h2 className="mt-4 text-lg font-semibold tracking-tight">No published questions yet</h2>
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#817b72]">The library is ready for verified content. Once the database migration is applied and approved questions are imported, they will appear here.</p>
-              {(query || year || difficulty) && <button onClick={resetFilters} className="btn btn-outline mt-5 cursor-pointer rounded-full normal-case">Clear filters</button>}
+              {(query || year || difficulty || examId || sectionId || subjectId || topicId) && <button onClick={resetFilters} className="btn btn-outline mt-5 cursor-pointer rounded-full normal-case">Clear filters</button>}
             </div>
           )}
           {!loading && items.map((question, index) => (
