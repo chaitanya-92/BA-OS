@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRightIcon, BookOpenIcon, CalculatorIcon, LightBulbIcon, MagnifyingGlassIcon, DocumentTextIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
-import { SiteHeader } from "@/components/site-header";
 import { LearningCallout } from "@/components/learning/learning-callout";
 
 type Subject = { id: string; name: string; slug: string };
