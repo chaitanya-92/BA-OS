@@ -12,11 +12,10 @@
 2. Copy `.env.example` to `.env.local`.
 3. Put the new pooled Neon connection string in `DATABASE_URL`. Keep `.env.local` out of Git.
 4. Install the updated dependencies with `npm install`.
-5. Generate the first migration with `npm run db:generate`.
-6. Review the generated SQL in `drizzle/` before applying it.
-7. Apply the migration with `npm run db:migrate`.
-8. Seed the exam and subject taxonomy with `npm run db:seed` (safe to re-run; uses upserts).
-9. Start the app with `npm run dev` and verify `/api/health`.
+5. Apply the committed complete initial schema migration with `npm run db:migrate`.
+6. Seed the exam and subject taxonomy with `npm run db:seed` (safe to re-run; uses upserts).
+7. Queue the supplied independent CAT Quant revision material with `npm run db:seed:content`.
+8. Start the app with `npm run dev` and verify `/api/health`.
 
 ## Current schema domains
 
@@ -28,7 +27,10 @@
 - Attempts and per-question responses.
 - Topic-linked study resources.
 - College directory, MBA programme fees and placement outcome records with source references and reporting years.
-- Admission and entrance calendar events with official URLs, statuses and verification timestamps.\n- Student accounts, hashed-password credentials, revocable sessions and editable profiles.\n- User-owned attempts, responses and spaced-revision scheduling.\n- Source-attributed notes, formulas, traps, shortcuts and checklists with draft/review/published states.
+- Admission and entrance calendar events with official URLs, statuses and verification timestamps.
+- Student accounts, hashed-password credentials, revocable sessions and editable profiles.
+- User-owned attempts, responses and spaced-revision scheduling.
+- Source-attributed notes, formulas, traps, shortcuts and checklists with draft/review/published states.
 
 Question records preserve exam year, slot, source reference, source page, source question number, content fingerprint, difficulty and verification status. Publication is opt-in: `is_published` defaults to false. The public question API only returns published records.
 
@@ -40,8 +42,12 @@ Question records preserve exam year, slot, source reference, source page, source
 - `GET /api/tests`: returns published test metadata.
 - `GET /api/tests/:slug`: returns a published test and questions/options without exposing answer keys.
 - `GET /api/attempts/:id`: returns the completed attempt's score, submitted responses, verified answer keys and explanations.
-- `POST /api/tests/:slug/submit`: requires a signed-in student, validates assignment membership, grades against stored answer keys, saves a user-owned attempt and queues incorrect/unanswered questions for revision.\n- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`: account and session lifecycle.\n- `PATCH /api/profile`: updates the signed-in student's profile.\n- `GET /api/dashboard`, `GET /api/attempts`: personal performance summary and attempt history.\n- `GET /api/revision`, `POST /api/revision`: spaced-repetition queue and review scheduling.\n- `GET/POST/PATCH /api/admin/content`: protected bulk content ingestion and draft review.\n- `GET /api/resources`: serves published study resources and verified authored entries.
-- `GET /api/questions`: returns published questions with validated filters and bounded offset pagination.
+- `POST /api/tests/:slug/submit`: requires a signed-in student, validates assignment membership, grades against stored answer keys, saves a user-owned attempt and queues incorrect/unanswered questions for revision.
+- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`: account and session lifecycle.
+- `PATCH /api/profile`: updates the signed-in student's profile.
+- `GET /api/dashboard`, `GET /api/attempts`: personal performance summary and attempt history.
+- `GET /api/revision`, `POST /api/revision`: spaced-repetition queue and review scheduling.
+- `GET/POST/PATCH /api/admin/content`: protected bulk content ingestion and draft review.\n- `GET /api/questions`: returns published questions with validated filters and bounded offset pagination.
 - `GET /api/questions/:id`: returns a published question, options and available explanations.
 - `GET /api/colleges`: returns active colleges with published MBA programmes.
 - `GET /api/calendar`: returns published entrance and admission events, including source and verification metadata.
