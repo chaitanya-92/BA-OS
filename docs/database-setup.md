@@ -51,7 +51,7 @@ Question records preserve exam year, slot, source reference, source page, source
 
 Supported question filters: `examId`, `sectionId`, `subjectId`, `topicId`, `year`, `difficulty`, `q`, `limit` (1–50) and `offset` (0–10000).
 
-Set a long random `ADMIN_IMPORT_TOKEN` in `.env.local` before using the protected question and content authoring endpoints. After migration and taxonomy seed, run `npm run db:seed:content` to queue the original CAT Quant revision notes as unpublished drafts. Do not put this token in client-side code or commit it. Imported records remain unpublished until reviewed and explicitly approved.
+Set a long random `ADMIN_IMPORT_TOKEN` in `.env.local` before using the protected question and content authoring endpoints. After migration and taxonomy seed, run `npm run db:seed:content` to queue the supplied independent CAT Quant revision material as unpublished drafts. Do not put this token in client-side code or commit it. Imported records remain unpublished until reviewed and explicitly approved.
 
 ## Important implementation boundaries
 
