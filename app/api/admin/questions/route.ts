@@ -55,6 +55,39 @@ export async function GET(request: NextRequest) {
 
   try {
     const db = getDb();
+    const requestedId = request.nextUrl.searchParams.get("id");
+    if (requestedId) {
+      const id = z.string().uuid().safeParse(requestedId);
+      if (!id.success) return NextResponse.json({ error: "Invalid question id." }, { status: 400 });
+      const [question] = await db.select({
+        id: questions.id,
+        prompt: questions.prompt,
+        passage: questions.passage,
+        questionType: questions.questionType,
+        difficulty: questions.difficulty,
+        examYear: questions.examYear,
+        examSlot: questions.examSlot,
+        sourceReference: questions.sourceReference,
+        sourcePage: questions.sourcePage,
+        verificationStatus: questions.verificationStatus,
+      }).from(questions).where(and(eq(questions.id, id.data), eq(questions.isPublished, false))).limit(1);
+      if (!question) return NextResponse.json({ error: "Pending question not found." }, { status: 404 });
+      const [options, explanations] = await Promise.all([
+        db.select({
+          id: questionOptions.id,
+          optionKey: questionOptions.optionKey,
+          content: questionOptions.content,
+          isCorrect: questionOptions.isCorrect,
+        }).from(questionOptions).where(eq(questionOptions.questionId, id.data)).orderBy(asc(questionOptions.displayOrder)),
+        db.select({
+          methodName: solutions.methodName,
+          content: solutions.content,
+          answerText: solutions.answerText,
+          answerVerification: solutions.answerVerification,
+        }).from(solutions).where(eq(solutions.questionId, id.data)).orderBy(asc(solutions.createdAt)),
+      ]);
+      return NextResponse.json({ ...question, options, solutions: explanations });
+    }
     const pending = await db.select({
       id: questions.id,
       prompt: questions.prompt,
