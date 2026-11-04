@@ -196,10 +196,33 @@ export const testQuestions = pgTable("test_questions", {
   uniqueIndex("test_questions_section_order_uidx").on(table.testSectionId, table.displayOrder),
 ]);
 
+export const users = pgTable("users", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  passwordHash: text("password_hash").notNull(),
+  displayName: varchar("display_name", { length: 120 }).notNull(),
+  avatarUrl: text("avatar_url"),
+  bio: varchar("bio", { length: 500 }),
+  targetExam: varchar("target_exam", { length: 80 }),
+  targetYear: integer("target_year"),
+  role: varchar("role", { length: 20 }).notNull().default("student"),
+  isActive: boolean("is_active").notNull().default(true),
+  ...timestamps,
+}, (table) => [uniqueIndex("users_email_uidx").on(table.email), index("users_role_idx").on(table.role)]);
+
+export const sessions = pgTable("sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+  ...timestamps,
+}, (table) => [uniqueIndex("sessions_token_hash_uidx").on(table.tokenHash), index("sessions_user_idx").on(table.userId), index("sessions_expiry_idx").on(table.expiresAt)]);
+
 export const attempts = pgTable("attempts", {
   id: uuid("id").defaultRandom().primaryKey(),
   testId: uuid("test_id").notNull().references(() => tests.id, { onDelete: "restrict" }),
-  userId: uuid("user_id"),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
   status: attemptStatusEnum("status").notNull().default("in_progress"),
   startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
   submittedAt: timestamp("submitted_at", { withTimezone: true }),
@@ -309,4 +332,50 @@ export const admissionEvents = pgTable("admission_events", {
 }, (table) => [
   index("admission_events_starts_idx").on(table.startsAt),
   index("admission_events_published_idx").on(table.isPublished),
+]);
+
+export const revisionItems = pgTable("revision_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  questionId: uuid("question_id").notNull().references(() => questions.id, { onDelete: "cascade" }),
+  sourceAttemptId: uuid("source_attempt_id").references(() => attempts.id, { onDelete: "set null" }),
+  status: varchar("status", { length: 24 }).notNull().default("due"),
+  repetitions: integer("repetitions").notNull().default(0),
+  intervalDays: integer("interval_days").notNull().default(0),
+  easeFactor: integer("ease_factor").notNull().default(250),
+  dueAt: timestamp("due_at", { withTimezone: true }).notNull().defaultNow(),
+  lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+  lastOutcome: varchar("last_outcome", { length: 24 }),
+  notes: text("notes"),
+  ...timestamps,
+}, (table) => [
+  uniqueIndex("revision_items_user_question_uidx").on(table.userId, table.questionId),
+  index("revision_items_user_due_idx").on(table.userId, table.dueAt),
+]);
+
+export const contentEntryTypeEnum = pgEnum("content_entry_type", ["note", "formula", "trap", "shortcut", "checklist"]);
+export const contentEntryStatusEnum = pgEnum("content_entry_status", ["draft", "in_review", "published", "archived"]);
+export const contentEntries = pgTable("content_entries", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+  sourceId: uuid("source_id").references(() => sources.id, { onDelete: "set null" }),
+  subjectId: uuid("subject_id").references(() => subjects.id, { onDelete: "set null" }),
+  topicId: uuid("topic_id").references(() => topics.id, { onDelete: "set null" }),
+  title: varchar("title", { length: 220 }).notNull(),
+  slug: varchar("slug", { length: 240 }).notNull(),
+  entryType: contentEntryTypeEnum("entry_type").notNull(),
+  content: text("content").notNull(),
+  sourceReference: text("source_reference"),
+  sourcePage: varchar("source_page", { length: 40 }),
+  verificationStatus: verificationStatusEnum("verification_status").notNull().default("unreviewed"),
+  status: contentEntryStatusEnum("status").notNull().default("draft"),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull().default({}),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  uniqueIndex("content_entries_slug_uidx").on(table.slug),
+  index("content_entries_status_type_idx").on(table.status, table.entryType),
+  index("content_entries_topic_idx").on(table.topicId),
+  index("content_entries_source_idx").on(table.sourceId),
 ]);
