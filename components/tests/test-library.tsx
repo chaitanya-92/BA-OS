@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { ArrowRightIcon, BookOpenIcon, ClockIcon, DocumentTextIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
+import { SiteHeader } from "@/components/site-header";
 
 type TestItem = {
   id: string;
@@ -48,12 +48,6 @@ export function TestLibrary() {
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95">
-        <div className="page-shell flex h-[76px] items-center justify-between">
-          <Link href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link>
-          <Link href="/" className="text-sm text-[#706b63] hover:text-[#242321]">Back to overview</Link>
-        </div>
-      </header>
       <section className="page-shell pb-10 pt-14 sm:pt-20">
         <p className="eyebrow">The examination room</p>
         <h1 className="editorial-heading mt-4 text-5xl sm:text-6xl">Practise with purpose.</h1>
