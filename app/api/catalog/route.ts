@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { examSections, exams, subjects, topics } from "@/lib/db/schema";
 
 export const runtime = "nodejs";
@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const db = getDb();
     const [examRows, sectionRows, subjectRows, topicRows] = await Promise.all([
       db.select({ id: exams.id, name: exams.name, slug: exams.slug })
         .from(exams).where(eq(exams.status, "active")).orderBy(asc(exams.name)),
