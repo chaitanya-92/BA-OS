@@ -28,6 +28,8 @@ export async function GET(
         difficulty: questions.difficulty,
         prompt: questions.prompt,
         verificationStatus: questions.verificationStatus,
+        createdAt: questions.createdAt,
+        isPublished: questions.isPublished,
       })
       .from(questions)
       .where(eq(questions.id, id))
@@ -59,7 +61,7 @@ export async function GET(
         .orderBy(asc(solutions.createdAt)),
     ]);
 
-    return NextResponse.json({ ...question, options, solutions: explanationRows });
+    const { isPublished: _isPublished, ...publicQuestion } = question;\n    return NextResponse.json({ ...publicQuestion, options, solutions: explanationRows });
   } catch {
     return NextResponse.json(
       { error: "Question details are temporarily unavailable." },
