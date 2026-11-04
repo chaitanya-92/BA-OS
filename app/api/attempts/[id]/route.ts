@@ -2,6 +2,7 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
+import { getSessionUser } from "@/lib/auth/session";
 import {
   attempts,
   attemptResponses,
@@ -20,6 +21,8 @@ export async function GET(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   if (!z.string().uuid().safeParse(id).success) {
     return NextResponse.json({ error: "Invalid attempt id." }, { status: 400 });
   }
@@ -29,6 +32,7 @@ export async function GET(
     const [attempt] = await db.select({
       id: attempts.id,
       testId: attempts.testId,
+      userId: attempts.userId,
       status: attempts.status,
       startedAt: attempts.startedAt,
       submittedAt: attempts.submittedAt,
@@ -39,7 +43,7 @@ export async function GET(
       timeSpentSeconds: attempts.timeSpentSeconds,
     }).from(attempts).where(eq(attempts.id, id)).limit(1);
 
-    if (!attempt || (attempt.status !== "submitted" && attempt.status !== "auto_submitted")) {
+    if (!attempt || attempt.userId !== user.id || (attempt.status !== "submitted" && attempt.status !== "auto_submitted")) {
       return NextResponse.json({ error: "Completed attempt not found." }, { status: 404 });
     }
 
