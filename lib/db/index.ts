@@ -3,7 +3,6 @@ import { drizzle } from "drizzle-orm/postgres-js";
 
 const globalForDb = globalThis as unknown as {
   sqlClient?: ReturnType<typeof postgres>;
-  database?: ReturnType<typeof drizzle>;
 };
 
 export function getDb() {
@@ -20,6 +19,5 @@ export function getDb() {
   });
 
   if (!globalForDb.sqlClient) globalForDb.sqlClient = client;
-  if (!globalForDb.database) globalForDb.database = drizzle(client);
-  return globalForDb.database;
+  return drizzle(client);
 }
