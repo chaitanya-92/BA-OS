@@ -4,11 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
-  CheckCircleIcon,
   ClockIcon,
   FlagIcon,
   ListBulletIcon,
-  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
 
