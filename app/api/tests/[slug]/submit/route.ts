@@ -2,9 +2,11 @@ import { and, eq, inArray } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
+import { getSessionUser } from "@/lib/auth/session";
 import {
   attempts,
   attemptResponses,
+  revisionItems,
   questionOptions,
   questions,
   solutions,
@@ -34,6 +36,8 @@ export async function POST(
   context: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await context.params;
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Sign in to save your attempts and personal progress." }, { status: 401 });
   const parsed = submitSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid submission.", details: parsed.error.flatten() }, { status: 400 });
@@ -137,6 +141,7 @@ export async function POST(
     const attempt = await db.transaction(async (tx) => {
       const [created] = await tx.insert(attempts).values({
         testId: test.id,
+        userId: user.id,
         status: "submitted",
         startedAt: new Date(parsed.data.startedAt),
         submittedAt: new Date(),
@@ -147,6 +152,10 @@ export async function POST(
         timeSpentSeconds: trustedTimeSpent,
       }).returning({ id: attempts.id });
 
+      const revisionCandidates = graded.filter((item) => !item.isCorrect);
+      if (revisionCandidates.length) {
+        await tx.insert(revisionItems).values(revisionCandidates.map(({ assignment }) => ({ userId: user.id, questionId: assignment.questionId, sourceAttemptId: created.id, status: "due" })) ).onConflictDoNothing();
+      }
       if (graded.length) {
         await tx.insert(attemptResponses).values(graded.map(({ assignment, response }) => ({
           attemptId: created.id,
