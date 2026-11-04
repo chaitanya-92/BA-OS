@@ -1,11 +1,13 @@
 "use client";
-import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, QueueListIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenIcon, BookmarkSquareIcon, CalendarDaysIcon, ChartBarSquareIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, PencilSquareIcon, PlayCircleIcon, QueueListIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const nav = [{label:"PYQ Library",href:"/pyqs"},{label:"Mock Tests",href:"/tests"},{label:"Learning",href:"/learn"},{label:"Entrance Dates",href:"/calendar"},{label:"B-Schools",href:"/colleges"}];
 
 const modules = [
   { n:"01", title:"Previous-year questions", label:"Question library", text:"Browse by exam, year, slot, section, topic and subtopic. Every record will retain its source and review status.", href:"/pyqs", icon:BookOpenIcon },
