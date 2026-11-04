@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -101,6 +102,8 @@ export function TestRunner({ slug }: { slug: string }) {
           }
         }
         setStartedAt(start);
+        const firstQuestionId = data.sections[0]?.questions[0]?.id;
+        if (firstQuestionId) saved[firstQuestionId] = { ...(saved[firstQuestionId] ?? emptyResponse()), visited: true };
         setResponses(saved);
         setRemaining(Math.max(0, data.durationMinutes * 60 - Math.floor((Date.now() - new Date(start).getTime()) / 1000)));
       })
@@ -122,14 +125,6 @@ export function TestRunner({ slug }: { slug: string }) {
   const questions = section?.questions ?? [];
   const question = questions[questionIndex];
   const currentResponse = question ? responses[question.id] ?? emptyResponse() : emptyResponse();
-
-  useEffect(() => {
-    if (!question || result) return;
-    setResponses((current) => ({
-      ...current,
-      [question.id]: { ...(current[question.id] ?? emptyResponse()), visited: true },
-    }));
-  }, [question?.id, result]);
 
   const submit = useCallback(async () => {
     if (!test || !startedAt || submitting || result) return;
@@ -199,6 +194,8 @@ export function TestRunner({ slug }: { slug: string }) {
   }
 
   function goToQuestion(index: number, targetSection = sectionIndex) {
+    const targetQuestion = test?.sections[targetSection]?.questions[index];
+    if (targetQuestion) updateResponse(targetQuestion.id, { visited: true });
     setSectionIndex(targetSection);
     setQuestionIndex(index);
     setShowPalette(false);
@@ -220,7 +217,7 @@ export function TestRunner({ slug }: { slug: string }) {
   const isLastSection = sectionIndex === (test?.sections.length ?? 1) - 1;
 
   if (loading) return <main className="min-h-screen bg-[var(--paper)] p-6"><div className="mx-auto max-w-5xl animate-pulse space-y-5 pt-20"><div className="h-5 w-40 rounded bg-[#e9e5dc]"/><div className="h-14 w-2/3 rounded bg-[#e9e5dc]"/><div className="h-72 rounded-2xl bg-[#e9e5dc]"/></div></main>;
-  if (error && !test) return <main className="page-shell min-h-screen py-20"><p className="eyebrow">Test room</p><h1 className="mt-4 font-display text-3xl">Unable to open this test.</h1><p className="mt-3 text-sm text-[#817b72]">{error}</p><a href="/tests" className="btn btn-outline mt-6 rounded-full">Back to tests</a></main>;
+  if (error && !test) return <main className="page-shell min-h-screen py-20"><p className="eyebrow">Test room</p><h1 className="mt-4 font-display text-3xl">Unable to open this test.</h1><p className="mt-3 text-sm text-[#817b72]">{error}</p><Link href="/tests" className="btn btn-outline mt-6 rounded-full">Back to tests</Link></main>;
   if (result) return (
     <main className="min-h-screen bg-[var(--paper)]">
       <div className="page-shell max-w-4xl py-16 sm:py-24">
@@ -234,18 +231,18 @@ export function TestRunner({ slug }: { slug: string }) {
           </div>
           <p className="mt-6 text-xs text-[#817b72]">Time used: {formatTime(result.timeSpentSeconds)} · Attempt ID: {result.attemptId}</p>
         </div>
-        <a href="/tests" className="btn btn-neutral mt-7 rounded-full normal-case">Return to test library <ArrowRightIcon className="size-4"/></a>
+        <Link href="/tests" className="btn btn-neutral mt-7 rounded-full normal-case">Return to test library <ArrowRightIcon className="size-4"/></Link>
       </div>
     </main>
   );
 
-  if (!test || !question) return <main className="page-shell min-h-screen py-20"><h1 className="font-display text-3xl">This test has no available questions yet.</h1><a href="/tests" className="btn btn-outline mt-6 rounded-full">Back to tests</a></main>;
+  if (!test || !question) return <main className="page-shell min-h-screen py-20"><h1 className="font-display text-3xl">This test has no available questions yet.</h1><Link href="/tests" className="btn btn-outline mt-6 rounded-full">Back to tests</Link></main>;
 
   return (
     <main className="min-h-screen bg-[#f3f1eb]">
       <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[#fbfaf7]/95 backdrop-blur">
         <div className="page-shell flex min-h-[72px] items-center justify-between gap-4">
-          <div className="min-w-0"><a href="/tests" className="text-[10px] text-[#817b72] hover:text-[#242321]">← Test library</a><h1 className="truncate font-display text-lg font-semibold">{test.title}</h1></div>
+          <div className="min-w-0"><Link href="/tests" className="text-[10px] text-[#817b72] hover:text-[#242321]">← Test library</Link><h1 className="truncate font-display text-lg font-semibold">{test.title}</h1></div>
           <div className="flex shrink-0 items-center gap-3"><div className={`flex items-center gap-2 rounded-xl border px-3 py-2 font-mono text-sm tabular-nums ${remaining < 300 ? "border-[#d8b5a9] bg-[#fbefeb] text-[#9b473d]" : "border-[var(--line)] bg-white"}`}><ClockIcon className="size-4"/>{formatTime(remaining)}</div><button onClick={() => setReviewOpen(true)} className="btn btn-neutral btn-sm rounded-full normal-case">Submit test</button></div>
         </div>
       </header>
@@ -278,8 +275,8 @@ export function TestRunner({ slug }: { slug: string }) {
             <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-5">
               <button onClick={() => updateResponse(question.id,{marked:!currentResponse.marked})} className={`btn btn-sm rounded-full normal-case ${currentResponse.marked ? "btn-warning" : "btn-ghost border border-[var(--line)]"}`}><FlagIcon className="size-4"/>{currentResponse.marked ? "Marked for review" : "Mark for review"}</button>
               <div className="flex items-center gap-2">
-                <button disabled={questionIndex === 0 && sectionIndex === 0} onClick={() => questionIndex > 0 ? setQuestionIndex((value) => value - 1) : goToQuestion((test.sections[sectionIndex - 1]?.questions.length ?? 1) - 1,sectionIndex - 1)} className="btn btn-outline btn-sm rounded-full normal-case"><ArrowLeftIcon className="size-4"/> Previous</button>
-                <button onClick={() => !isLastQuestion ? setQuestionIndex((value) => value + 1) : !isLastSection ? goToQuestion(0,sectionIndex + 1) : setReviewOpen(true)} className="btn btn-neutral btn-sm rounded-full normal-case">{isLastQuestion && isLastSection ? "Review" : "Next"} <ArrowRightIcon className="size-4"/></button>
+                <button disabled={questionIndex === 0 && sectionIndex === 0} onClick={() => questionIndex > 0 ? goToQuestion(questionIndex - 1) : goToQuestion((test.sections[sectionIndex - 1]?.questions.length ?? 1) - 1,sectionIndex - 1)} className="btn btn-outline btn-sm rounded-full normal-case"><ArrowLeftIcon className="size-4"/> Previous</button>
+                <button onClick={() => !isLastQuestion ? goToQuestion(questionIndex + 1) : !isLastSection ? goToQuestion(0,sectionIndex + 1) : setReviewOpen(true)} className="btn btn-neutral btn-sm rounded-full normal-case">{isLastQuestion && isLastSection ? "Review" : "Next"} <ArrowRightIcon className="size-4"/></button>
               </div>
             </div>
           </div>
@@ -317,7 +314,7 @@ export function TestRunner({ slug }: { slug: string }) {
           <div className="rounded-xl bg-[#f3ead9] p-3"><p className="font-display text-2xl">{markedCount}</p><p className="text-[10px] text-[#8a6837]">For review</p></div>
           <div className="rounded-xl bg-[#efede7] p-3"><p className="font-display text-2xl">{allQuestions.length-answeredCount}</p><p className="text-[10px] text-[#716c63]">Unanswered</p></div>
         </div>
-        <p className="mt-5 text-sm leading-6 text-[#625d55]">Once submitted, this attempt cannot be changed. Your score will be calculated using the test's configured marking scheme.</p>
+        <p className="mt-5 text-sm leading-6 text-[#625d55]">Once submitted, this attempt cannot be changed. Your score will be calculated using the test&apos;s configured marking scheme.</p>
         <div className="mt-6 flex justify-end gap-2"><button onClick={() => setReviewOpen(false)} className="btn btn-ghost rounded-full normal-case">Continue test</button><button disabled={submitting} onClick={() => void submit()} className="btn btn-neutral rounded-full normal-case">{submitting ? "Submitting…" : "Confirm submission"}</button></div>
       </Modal>
     </main>
