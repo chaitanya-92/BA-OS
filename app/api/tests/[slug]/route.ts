@@ -1,4 +1,4 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
@@ -28,7 +28,7 @@ export async function GET(
       kind: tests.kind,
       durationMinutes: tests.durationMinutes,
       instructions: tests.instructions,
-    }).from(tests).where(eq(tests.slug, slug)).limit(1);
+    }).from(tests).where(and(eq(tests.slug, slug), eq(tests.isPublished, true))).limit(1);
 
     if (!test) return NextResponse.json({ error: "Test not found." }, { status: 404 });
 
@@ -53,7 +53,7 @@ export async function GET(
         displayOrder: testQuestions.displayOrder,
       }).from(testQuestions)
         .innerJoin(questions, eq(testQuestions.questionId, questions.id))
-        .where(eq(testQuestions.testSectionId, section.id))
+        .where(and(eq(testQuestions.testSectionId, section.id), eq(questions.isPublished, true)))
         .orderBy(asc(testQuestions.displayOrder));
 
       const hydratedQuestions = await Promise.all(rows.map(async (question) => {
