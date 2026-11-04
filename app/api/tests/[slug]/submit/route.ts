@@ -101,7 +101,7 @@ export async function POST(
       }
 
       let isCorrect = false;
-      if (questionType === "mcq_single" || questionType === "mcq_multiple") {
+      if (questionType === "mcq_single" || questionType === "mcq_multiple" || selected.length > 0) {
         const allOptions = await db.select({ id: questionOptions.id, isCorrect: questionOptions.isCorrect })
           .from(questionOptions)
           .where(eq(questionOptions.questionId, assignment.questionId));
