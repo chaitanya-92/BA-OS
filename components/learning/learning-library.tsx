@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowUpRightIcon, BookOpenIcon, CalculatorIcon, LightBulbIcon, MagnifyingGlassIcon, NotebookPenIcon, SearchXIcon } from "lucide-react";
+import { ArrowUpRightIcon, BookOpenIcon, CalculatorIcon, LightBulbIcon, MagnifyingGlassIcon, DocumentTextIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
 import { LearningCallout } from "@/components/learning/learning-callout";
 
@@ -32,7 +32,7 @@ const kindLabels: Record<string, string> = {
 function iconFor(kind: string) {
   if (kind.includes("formula")) return CalculatorIcon;
   if (kind.includes("trap") || kind.includes("shortcut")) return LightBulbIcon;
-  return NotebookPenIcon;
+  return DocumentTextIcon;
 }
 
 export function LearningLibrary() {
@@ -172,7 +172,7 @@ export function LearningLibrary() {
               </details>
             );
           })}
-          {!loading && visibleSubjects.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--line)] py-16 text-center text-sm text-[#817b72]"><SearchXIcon className="mx-auto mb-3 size-7"/>No matching subjects or resources.</div>}
+          {!loading && visibleSubjects.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--line)] py-16 text-center text-sm text-[#817b72]"><XCircleIcon className="mx-auto mb-3 size-7"/>No matching subjects or resources.</div>}
         </div>
       </section>
 
