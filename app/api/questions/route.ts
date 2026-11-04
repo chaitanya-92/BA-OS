@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { questions } from "@/lib/db/schema";
 
 export const runtime = "nodejs";
@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
       ...(filters.q ? [ilike(questions.prompt, `%${filters.q}%`)] : []),
     ];
 
+    const db = getDb();
     const items = await db
       .select({
         id: questions.id,
