@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { ArrowUpRightIcon, BookOpenIcon, CalculatorIcon, LightBulbIcon, MagnifyingGlassIcon, DocumentTextIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
+import { SiteHeader } from "@/components/site-header";
 import { LearningCallout } from "@/components/learning/learning-callout";
 
 type Subject = { id: string; name: string; slug: string };
@@ -85,12 +85,6 @@ export function LearningLibrary() {
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95">
-        <div className="page-shell flex h-[76px] items-center justify-between">
-          <Link href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link>
-          <Link href="/" className="text-sm text-[#706b63] hover:text-[#242321]">Back to overview</Link>
-        </div>
-      </header>
 
       <section className="page-shell pb-10 pt-14 sm:pt-20">
         <p className="eyebrow">The learning desk</p>
