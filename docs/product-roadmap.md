@@ -7,26 +7,28 @@
 - GSAP entrance and scroll-reveal animation with reduced-motion support.
 - Reusable skeleton primitives and toast host.
 
-## Phase 2 — Platform foundations (next priority)
+## Phase 2 — Platform foundations (active)
 - Neon PostgreSQL connection, Drizzle schema, typed database client and Drizzle Kit migration tooling (schema committed; first migration still needs local generation and application).
 - Database health endpoint, catalogue API, validated/paginated published-question APIs and protected idempotent question-import endpoint.
 - Dedicated searchable PYQ library page with exam, section, subject, topic, year and difficulty filters.
+- Shared accessible modal component used by search, question details, learning resources and test review.
 - Repeatable CAT/XAT/SNAP/NMAT/CMAT and QA/DILR/VARC taxonomy seed script.
 - Exam/section and subject/topic/subtopic taxonomy, source registry, question/options/solutions, tests/attempts/responses and study-resource tables.
 - Authentication and user profile (provider decision still pending).
-- Admin-only import and review workflows.
+- Admin-only JSON import, provenance inspection, answer-key review and publish/dispute workflow.
 
-## Phase 3 — Learning library
+## Phase 3 — Learning library (initial interface implemented)
+- Topic accordion library with subject/topic navigation and resource search.
+- Published resource API and detail modal for notes, formula sheets, traps, shortcuts and worked examples.
 - PYQ explorer, filters, question details and linked solutions.
-- Notes, formula sheets, traps, shortcuts and worked examples.
 - Lecture index from the spreadsheet once provided as XLSX/CSV.
 - Question/source provenance in the interface.
 
-## Phase 4 — Testing
-- Configurable exam patterns and marking schemes.
-- Full mocks and sectional tests.
-- Timer, autosave, navigation palette, review flags and submit flow.
-- Attempt history and solution review.
+## Phase 4 — Testing (initial engine implemented)
+- Published test catalogue and protected-answer test detail API.
+- Timed test runner with section navigation, question palette, local session recovery, review flags and submit confirmation.
+- Server-side MCQ/numeric grading using answer keys and persisted anonymous attempt records.
+- Configurable exam patterns and marking schemes, attempt history and detailed solution review remain to be completed.
 
 ## Phase 5 — Intelligence
 - Topic-level accuracy and time analytics.
