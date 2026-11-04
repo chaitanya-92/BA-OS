@@ -15,7 +15,8 @@
 5. Generate the first migration with `npm run db:generate`.
 6. Review the generated SQL in `drizzle/` before applying it.
 7. Apply the migration with `npm run db:migrate`.
-8. Start the app with `npm run dev` and verify `/api/health`.
+8. Seed the exam and subject taxonomy with `npm run db:seed` (safe to re-run; uses upserts).
+9. Start the app with `npm run dev` and verify `/api/health`.
 
 ## Current schema domains
 
@@ -32,9 +33,14 @@ Question records preserve exam year, slot, source reference, source page, source
 ## API
 
 - `GET /api/health`: checks database connectivity without returning credentials or internal error details.
+- `GET /api/catalog`: returns active exams, exam sections, subjects and topics for filter controls.
 - `GET /api/questions`: returns published questions with validated filters and bounded offset pagination.
+- `GET /api/questions/:id`: returns a published question, options and available explanations.
+- `POST /api/admin/questions`: imports one question using the `x-admin-import-token` header. It always creates an unpublished, unreviewed record; content fingerprinting is scoped by exam/year/slot/source reference.
 
-Supported question filters: `examId`, `subjectId`, `topicId`, `year`, `difficulty`, `limit` (1–50) and `offset` (0–10000).
+Supported question filters: `examId`, `sectionId`, `subjectId`, `topicId`, `year`, `difficulty`, `q`, `limit` (1–50) and `offset` (0–10000).
+
+Set a long random `ADMIN_IMPORT_TOKEN` in `.env.local` before using the protected import endpoint. Do not put this token in client-side code or commit it. Imported records remain unpublished until reviewed and explicitly approved.
 
 ## Important implementation boundaries
 
