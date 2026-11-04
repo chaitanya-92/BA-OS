@@ -84,7 +84,7 @@ export async function GET(
       const answered = selected.size > 0 || Boolean(row.answerText?.trim());
       const normalise = (value: string) => value.replace(/\\s+/g, "").toLowerCase();
       const isCorrect = !answered ? null :
-        row.questionType === "mcq_single" || row.questionType === "mcq_multiple"
+        row.questionType === "mcq_single" || row.questionType === "mcq_multiple" || options.length > 0
           ? correct.length > 0 && correct.length === selected.size && correct.every((option) => selected.has(option.id))
           : explanations.some((solution) => solution.answerText && normalise(solution.answerText) === normalise(row.answerText ?? ""));
       return {
