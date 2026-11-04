@@ -30,11 +30,12 @@
 - Server-side MCQ/numeric grading using answer keys and persisted anonymous attempt records.
 - Configurable exam patterns and marking schemes, attempt history and detailed solution review remain to be completed.
 
-## Phase 5 — Intelligence
+## Phase 5 — Intelligence & admissions (initial directories implemented)
+- Source-aware college and MBA programme directory with fees, placement outcomes and reporting years.
+- Entrance and admission calendar with official URLs, statuses and verification timestamps.
 - Topic-level accuracy and time analytics.
 - Historical frequency with visible source coverage.
 - Error log and revision scheduling.
-- Entrance calendar with source and verification timestamps.
 
 ## Phase 6 — Production hardening
 - Automated tests, accessibility checks and security review.
