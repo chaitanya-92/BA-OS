@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { useCallback, useState } from "react";
-import { ArrowPathIcon, CheckCircleIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, CheckCircleIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, LockClosedIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
 
 type PendingQuestion = {
