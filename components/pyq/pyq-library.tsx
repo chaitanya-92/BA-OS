@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { LearningCallout } from "@/components/learning/learning-callout";
 import { Modal } from "@/components/ui/modal";
@@ -56,6 +56,7 @@ export function PyqLibrary() {
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<QuestionDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const detailController = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -107,17 +108,29 @@ export function PyqLibrary() {
   }, [query, year, difficulty, examId, sectionId, subjectId, topicId, page]);
 
   async function openQuestion(id: string) {
+    detailController.current?.abort();
+    const controller = new AbortController();
+    detailController.current = controller;
     setDetailLoading(true);
     setSelected(null);
     try {
-      const response = await fetch(`/api/questions/${id}`, { cache: "no-store" });
+      const response = await fetch(`/api/questions/${id}`, { cache: "no-store", signal: controller.signal });
       if (!response.ok) throw new Error("This question could not be opened.");
-      setSelected((await response.json()) as QuestionDetail);
+      const data = (await response.json()) as QuestionDetail;
+      if (!controller.signal.aborted) setSelected(data);
     } catch (cause) {
+      if (cause instanceof Error && cause.name === "AbortError") return;
       setError(cause instanceof Error ? cause.message : "Unable to open question.");
     } finally {
-      setDetailLoading(false);
+      if (!controller.signal.aborted) setDetailLoading(false);
     }
+  }
+
+  function closeQuestion() {
+    detailController.current?.abort();
+    detailController.current = null;
+    setSelected(null);
+    setDetailLoading(false);
   }
 
   function resetFilters() {
@@ -247,7 +260,7 @@ export function PyqLibrary() {
 
       <Modal
         open={detailLoading || Boolean(selected)}
-        onClose={() => setSelected(null)}
+        onClose={closeQuestion}
         title="Question details"
         description={selected ? [selected.examYear, selected.examSlot, prettyType(selected.questionType)].filter(Boolean).join(" · ") : "Loading question"}
         size="lg"
