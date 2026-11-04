@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
@@ -30,13 +30,12 @@ export async function GET(
         prompt: questions.prompt,
         verificationStatus: questions.verificationStatus,
         createdAt: questions.createdAt,
-        isPublished: questions.isPublished,
       })
       .from(questions)
-      .where(eq(questions.id, id))
+      .where(and(eq(questions.id, id), eq(questions.isPublished, true)))
       .limit(1);
 
-    if (!question || !question.isPublished) {
+    if (!question) {
       return NextResponse.json({ error: "Question not found." }, { status: 404 });
     }
 
@@ -59,8 +58,7 @@ export async function GET(
         .orderBy(asc(solutions.createdAt)),
     ]);
 
-    const { isPublished: _isPublished, ...publicQuestion } = question;
-    return NextResponse.json({ ...publicQuestion, options, solutions: explanationRows });
+    return NextResponse.json({ ...question, options, solutions: explanationRows });
   } catch {
     return NextResponse.json(
       { error: "Question details are temporarily unavailable." },
