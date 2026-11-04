@@ -4,7 +4,7 @@
 
 ## Product direction
 
-- Editorial academic visual identity: Playfair Display, warm paper surfaces, ink typography.
+- Professional, minimal visual identity: DM Sans throughout, warm paper surfaces and restrained ink typography.
 - Question discovery, concept library, timed practice, mock examinations and preparation analytics.
 - Source-aware content ingestion with provenance and verification status.
 - Next.js App Router, TypeScript, Tailwind CSS 4, daisyUI, GSAP, Heroicons and Drizzle ORM.
@@ -23,7 +23,7 @@ See `.env.example`. Never commit `.env.local`, database passwords, API keys or p
 
 ## Content integrity
 
-Imported educational data must retain source attribution, page/slot metadata, answer provenance and a review status. Do not publish book scans or substantial copyrighted question/solution text without the relevant rights. See `docs/content-ingestion.md`.
+Imported educational data must retain source attribution, page/slot metadata, answer provenance and a review status. Do not assume a compilation layout identifies the original source of a question. Preserve each question’s actual provenance and publish only material that is public, user-created or appropriately licensed. See `docs/content-ingestion.md`.
 
 ## Current implementation
 
