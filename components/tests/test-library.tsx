@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ArrowRightIcon, BookOpenIcon, ClockIcon, DocumentTextIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
 
@@ -49,8 +50,8 @@ export function TestLibrary() {
     <main className="min-h-screen bg-[var(--paper)]">
       <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95">
         <div className="page-shell flex h-[76px] items-center justify-between">
-          <a href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></a>
-          <a href="/" className="text-sm text-[#706b63] hover:text-[#242321]">Back to overview</a>
+          <Link href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link>
+          <Link href="/" className="text-sm text-[#706b63] hover:text-[#242321]">Back to overview</Link>
         </div>
       </header>
       <section className="page-shell pb-10 pt-14 sm:pt-20">
@@ -74,14 +75,14 @@ export function TestLibrary() {
         {!loading && !error && visible.length === 0 && <div className="mt-6 rounded-2xl border border-dashed border-[#d5cfc4] bg-white/40 px-6 py-16 text-center">
           <BookOpenIcon className="mx-auto size-8 text-[#928b80]"/>
           <h2 className="mt-4 font-display text-2xl">Your test room is being prepared.</h2>
-          <p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-[#817b72]">There are no published tests yet. Once reviewed questions are assigned to a test and its sections, the test will appear here. We won't fill this library with fabricated questions.</p>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-[#817b72]">There are no published tests yet. Once reviewed questions are assigned to a test and its sections, the test will appear here. We won&apos;t fill this library with fabricated questions.</p>
         </div>}
         {!loading && visible.length > 0 && <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {visible.map((test) => <article key={test.id} className="soft-card flex min-h-64 flex-col rounded-2xl bg-white/65 p-6">
             <div className="flex items-start justify-between"><span className="rounded-full border border-[var(--line)] bg-[#efede7] px-3 py-1 text-[10px] uppercase tracking-wider text-[#716c63]">{kindLabels[test.kind]}</span><button onClick={() => setSelected(test)} className="btn btn-ghost btn-square btn-sm" aria-label={`Details for ${test.title}`}><InformationCircleIcon className="size-5"/></button></div>
             <h2 className="mt-6 font-display text-2xl">{test.title}</h2>
             <p className="mt-2 flex-1 text-sm leading-6 text-[#716c63]">{test.description ?? "A structured practice session."}</p>
-            <div className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4"><span className="inline-flex items-center gap-2 text-xs text-[#817b72]"><ClockIcon className="size-4"/>{test.durationMinutes} minutes</span><a href={`/tests/${test.slug}`} className="inline-flex items-center gap-2 text-xs font-semibold">Open test <ArrowRightIcon className="size-4"/></a></div>
+            <div className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4"><span className="inline-flex items-center gap-2 text-xs text-[#817b72]"><ClockIcon className="size-4"/>{test.durationMinutes} minutes</span><Link href={`/tests/${test.slug}`} className="inline-flex items-center gap-2 text-xs font-semibold">Open test <ArrowRightIcon className="size-4"/></Link></div>
           </article>)}
         </div>}
       </section>
