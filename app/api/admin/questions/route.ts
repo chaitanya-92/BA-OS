@@ -1,7 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { questionOptions, questions, solutions } from "@/lib/db/schema";
 
 export const runtime = "nodejs";
@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
     .digest("hex");
 
   try {
+    const db = getDb();
     const result = await db.transaction(async (tx) => {
       const [inserted] = await tx.insert(questions).values({
         examId: payload.examId ?? null,
