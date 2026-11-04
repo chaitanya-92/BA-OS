@@ -124,5 +124,5 @@ select option{background:#fbfaf7;color:#242321;padding:.65rem}select optgroup{ba
 
 /* Discreet route change: a short editorial page turn, without delaying content. */
 .page-turn{animation:page-turn-in .18s cubic-bezier(.2,.7,.25,1) both;transform-origin:50% 18%}
-@keyframes page-turn-in{from{opacity:.88;transform:translate3d(3px,0,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes page-turn-in{from{opacity:.88;transform:translate3d(3px,0,0)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.page-turn{animation:none}}
