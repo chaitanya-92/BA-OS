@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         externalUrl: studyResources.externalUrl,
       })
       .from(studyResources)
-      .where(conditions.length === 1 ? conditions[0] : (await import("drizzle-orm")).and(...conditions))
+      .where(and(...conditions))
       .orderBy(asc(studyResources.title))
       .limit(100);
     return NextResponse.json({ items });
