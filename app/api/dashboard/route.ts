@@ -1,4 +1,4 @@
-import { and,count,desc,eq,gte,sql } from "drizzle-orm";
+import { and,count,desc,eq,sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { attempts,revisionItems,tests } from "@/lib/db/schema";
