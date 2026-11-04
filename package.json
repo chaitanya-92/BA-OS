@@ -31,5 +31,8 @@
     "eslint-config-next": "^16.4.4",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }
