@@ -43,6 +43,7 @@ export async function POST(
     const db = getDb();
     const [test] = await db.select({
       id: tests.id,
+      durationMinutes: tests.durationMinutes,
     }).from(tests).where(and(eq(tests.slug, slug), eq(tests.isPublished, true))).limit(1);
     if (!test) return NextResponse.json({ error: "Test not found." }, { status: 404 });
 
@@ -81,7 +82,7 @@ export async function POST(
 
     const submittedStart = new Date(parsed.data.startedAt);
     if (submittedStart.getTime() > Date.now() + 60_000) return NextResponse.json({ error: "Invalid attempt start time." }, { status: 400 });
-    const trustedTimeSpent = Math.min(24 * 60 * 60, Math.max(0, Math.floor((Date.now() - submittedStart.getTime()) / 1000)));
+    const trustedTimeSpent = Math.min(test.durationMinutes * 60, Math.max(0, Math.floor((Date.now() - submittedStart.getTime()) / 1000)));
     const sectionMap = new Map(sections.map((section) => [section.id, section]));
     let correctCount = 0;
     let incorrectCount = 0;
