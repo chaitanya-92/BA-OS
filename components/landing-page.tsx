@@ -93,11 +93,11 @@ function Header() {
   }, [query]);
 
   const renderDropdown = (item: typeof nav[number], compact = false) => (
-    <div className={"dropdown dropdown-hover " + (compact ? "dropdown-open dropdown-end w-full" : "dropdown-center")}>
+    <div className={"dropdown dropdown-hover " + (compact ? "dropdown-end w-full" : "dropdown-center")}>
       <button type="button" tabIndex={0} aria-haspopup="true" className={compact ? "flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm hover:bg-black/5" : "nav-link inline-flex items-center gap-1.5 py-3"}>
         <span>{item.label}</span><ChevronDownIcon className={"size-3.5 opacity-60 transition-transform duration-200 group-hover:rotate-180 " + (compact ? "" : "")}/>
       </button>
-      <ul tabIndex={0} role="menu" className={"dropdown-content z-[60] mt-0 pt-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-2 shadow-[0_18px_50px_rgba(25,23,19,.14)] " + (compact ? "menu static visible w-full shadow-none" : "menu w-80")}>
+      <ul tabIndex={0} role="menu" className={"dropdown-content z-[60] mt-0 pt-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-2 shadow-[0_18px_50px_rgba(25,23,19,.14)] " + (compact ? "menu static w-full shadow-none" : "menu w-80")}>
         <li className="menu-title px-3 pb-2 pt-2 text-[10px] font-semibold uppercase tracking-[.12em] text-[#8a8378]">{item.label}</li>
         {item.items.map((entry) => <li key={entry.label}><a role="menuitem" href={entry.href} onClick={() => setMobile(false)} className="rounded-lg px-3 py-2.5 hover:bg-[#efede7]"><span className="block text-[13px] font-semibold text-[#242321]">{entry.label}</span><span className="mt-0.5 block whitespace-normal text-[11px] font-normal leading-5 text-[#817b72]">{entry.detail}</span></a></li>)}
         <li className="mt-1 border-t border-[var(--line)] pt-1"><a href={item.href} onClick={() => setMobile(false)} className="rounded-lg px-3 py-2 text-xs font-semibold">Explore {item.label}<ArrowUpRightIcon className="size-3.5"/></a></li>
