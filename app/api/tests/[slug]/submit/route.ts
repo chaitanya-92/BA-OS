@@ -7,6 +7,7 @@ import {
   attemptResponses,
   questionOptions,
   questions,
+  solutions,
   testQuestions,
   testSections,
   tests,
@@ -21,6 +22,7 @@ const submitSchema = z.object({
   responses: z.array(z.object({
     questionId: z.string().uuid(),
     selectedOptionIds: z.array(z.string().uuid()).max(8),
+    answerText: z.string().max(200).default(""),
     isMarkedForReview: z.boolean().default(false),
     isVisited: z.boolean().default(true),
     timeSpentSeconds: z.number().int().min(0).max(24 * 60 * 60).default(0),
@@ -81,19 +83,38 @@ export async function POST(
     let unansweredCount = 0;
     let score = 0;
 
+    const questionTypeMap = new Map(publishedRows.map((row) => [row.id, row.questionType]));
     const graded = await Promise.all(assigned.map(async (assignment) => {
       const response = uniqueResponses.get(assignment.questionId);
       const selected = response?.selectedOptionIds ?? [];
-      if (!response || selected.length === 0) {
+      const answerText = response?.answerText?.trim() ?? "";
+      const questionType = questionTypeMap.get(assignment.questionId);
+      if (!response || (selected.length === 0 && !answerText)) {
         unansweredCount += 1;
         return { assignment, response, isCorrect: false, isAnswered: false };
       }
-      const correctOptions = await db.select({ id: questionOptions.id })
-        .from(questionOptions)
-        .where(and(eq(questionOptions.questionId, assignment.questionId), eq(questionOptions.isCorrect, true)));
-      const expected = new Set(correctOptions.map((option) => option.id));
-      const actual = new Set(selected);
-      const isCorrect = expected.size > 0 && expected.size === actual.size && [...expected].every((id) => actual.has(id));
+
+      let isCorrect = false;
+      if (questionType === "mcq_single" || questionType === "mcq_multiple") {
+        const correctOptions = await db.select({ id: questionOptions.id })
+          .from(questionOptions)
+          .where(and(eq(questionOptions.questionId, assignment.questionId), eq(questionOptions.isCorrect, true)));
+        const expected = new Set(correctOptions.map((option) => option.id));
+        const actual = new Set(selected);
+        isCorrect = expected.size > 0 && expected.size === actual.size && [...expected].every((id) => actual.has(id));
+      } else {
+        const verifiedAnswers = await db.select({ answerText: solutions.answerText })
+          .from(solutions)
+          .where(and(
+            eq(solutions.questionId, assignment.questionId),
+            inArray(solutions.answerVerification, ["verified", "independently_checked"]),
+          ));
+        const expected = verifiedAnswers.map((item) => item.answerText?.replace(/\\s+/g, "").toLowerCase()).filter(Boolean);
+        if (!expected.length) throw new Error("A published non-MCQ question is missing a verified answer key.");
+        const actual = answerText.replace(/\\s+/g, "").toLowerCase();
+        isCorrect = expected.includes(actual);
+      }
+
       const section = sectionMap.get(assignment.sectionId);
       if (isCorrect) {
         correctCount += 1;
@@ -123,7 +144,7 @@ export async function POST(
           attemptId: created.id,
           questionId: assignment.questionId,
           selectedOptionIds: response?.selectedOptionIds ?? [],
-          answerText: null,
+          answerText: response?.answerText ?? null,
           isMarkedForReview: response?.isMarkedForReview ?? false,
           isVisited: response?.isVisited ?? false,
           timeSpentSeconds: response?.timeSpentSeconds ?? 0,
