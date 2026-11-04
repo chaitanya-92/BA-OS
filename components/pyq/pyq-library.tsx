@@ -140,7 +140,7 @@ export function PyqLibrary() {
               <span className="mr-2 text-xs text-[#817b72]">Year</span>
               <select value={year} onChange={(event) => { setYear(event.target.value); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
                 <option value="">All years</option>
-                {Array.from({ length: 10 }, (_, index) => 2026 - index).map((value) => <option key={value} value={value}>{value}</option>)}
+                {Array.from({ length: 36 }, (_, index) => 2026 - index).map((value) => <option key={value} value={value}>{value}</option>)}
               </select>
             </label>
             <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
