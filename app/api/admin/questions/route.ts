@@ -139,10 +139,11 @@ export async function PATCH(request: NextRequest) {
     if (!question) return NextResponse.json({ error: "Pending question not found." }, { status: 404 });
 
     if (parsed.data.action === "approve") {
-      if (question.questionType === "mcq_single" || question.questionType === "mcq_multiple") {
-        const correct = await db.select({ id: questionOptions.id })
-          .from(questionOptions)
-          .where(and(eq(questionOptions.questionId, question.id), eq(questionOptions.isCorrect, true)));
+      const options = await db.select({ id: questionOptions.id, isCorrect: questionOptions.isCorrect })
+        .from(questionOptions)
+        .where(eq(questionOptions.questionId, question.id));
+      if (options.length > 0) {
+        const correct = options.filter((option) => option.isCorrect === true);
         if (correct.length === 0 || (question.questionType === "mcq_single" && correct.length !== 1)) {
           return NextResponse.json({ error: "Add and verify the correct option before publishing." }, { status: 409 });
         }
