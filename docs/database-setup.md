@@ -28,7 +28,7 @@
 - Attempts and per-question responses.
 - Topic-linked study resources.
 - College directory, MBA programme fees and placement outcome records with source references and reporting years.
-- Admission and entrance calendar events with official URLs, statuses and verification timestamps.
+- Admission and entrance calendar events with official URLs, statuses and verification timestamps.\n- Student accounts, hashed-password credentials, revocable sessions and editable profiles.\n- User-owned attempts, responses and spaced-revision scheduling.\n- Source-attributed notes, formulas, traps, shortcuts and checklists with draft/review/published states.
 
 Question records preserve exam year, slot, source reference, source page, source question number, content fingerprint, difficulty and verification status. Publication is opt-in: `is_published` defaults to false. The public question API only returns published records.
 
@@ -40,7 +40,7 @@ Question records preserve exam year, slot, source reference, source page, source
 - `GET /api/tests`: returns published test metadata.
 - `GET /api/tests/:slug`: returns a published test and questions/options without exposing answer keys.
 - `GET /api/attempts/:id`: returns the completed attempt's score, submitted responses, verified answer keys and explanations.
-- `POST /api/tests/:slug/submit`: validates assignment membership, grades against stored answer keys and saves an anonymous attempt.
+- `POST /api/tests/:slug/submit`: requires a signed-in student, validates assignment membership, grades against stored answer keys, saves a user-owned attempt and queues incorrect/unanswered questions for revision.\n- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`: account and session lifecycle.\n- `PATCH /api/profile`: updates the signed-in student's profile.\n- `GET /api/dashboard`, `GET /api/attempts`: personal performance summary and attempt history.\n- `GET /api/revision`, `POST /api/revision`: spaced-repetition queue and review scheduling.\n- `GET/POST/PATCH /api/admin/content`: protected bulk content ingestion and draft review.\n- `GET /api/resources`: serves published study resources and verified authored entries.
 - `GET /api/questions`: returns published questions with validated filters and bounded offset pagination.
 - `GET /api/questions/:id`: returns a published question, options and available explanations.
 - `GET /api/colleges`: returns active colleges with published MBA programmes.
@@ -51,11 +51,12 @@ Question records preserve exam year, slot, source reference, source page, source
 
 Supported question filters: `examId`, `sectionId`, `subjectId`, `topicId`, `year`, `difficulty`, `q`, `limit` (1–50) and `offset` (0–10000).
 
-Set a long random `ADMIN_IMPORT_TOKEN` in `.env.local` before using the protected import endpoint. Do not put this token in client-side code or commit it. Imported records remain unpublished until reviewed and explicitly approved.
+Set a long random `ADMIN_IMPORT_TOKEN` in `.env.local` before using the protected question and content authoring endpoints. After migration and taxonomy seed, run `npm run db:seed:content` to queue the original CAT Quant revision notes as unpublished drafts. Do not put this token in client-side code or commit it. Imported records remain unpublished until reviewed and explicitly approved.
 
 ## Important implementation boundaries
 
-- Authentication is not yet selected, so attempts currently have a nullable `user_id` placeholder and must not be treated as user-isolated production data until authentication and ownership enforcement are implemented.
-- The schema is committed, but the first migration has not yet been generated or applied against the user's Neon instance.
+- Attempts submitted through the test engine now require a signed-in account and are scoped to that user. Legacy anonymous attempts, if any, remain unowned and are not exposed through the account history.
+- The student-platform migration is committed in `drizzle/0000_user_platform.sql`. Apply it with `npm run db:migrate` before using authentication, dashboard, revision or content-authoring features.
 - Do not import the whole PYQ collection until its per-question provenance, answer verification and publishing rights have been reviewed.
 - Keep original source documents private. The database should store only content that is appropriate to publish, plus provenance and review metadata.
+\n## Authentication notes\n\nPasswords are stored using Node's scrypt password derivation. Session tokens are random, stored as SHA-256 hashes in PostgreSQL and sent only in an HTTP-only, same-site cookie. Email verification, password reset, social sign-in and production-grade distributed rate limiting are not implemented yet; do not treat this as a finished identity provider.\n
