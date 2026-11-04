@@ -33,7 +33,6 @@ The initial Drizzle schema and Neon connection are in `lib/db`. Apply the commit
 npm install
 cp .env.example .env.local
 # Set a newly rotated Neon DATABASE_URL in .env.local
-npm run db:generate
 npm run db:migrate
 npm run dev
 ```
