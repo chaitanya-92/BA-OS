@@ -344,7 +344,7 @@ export function TestRunner({ slug }: { slug: string }) {
             <li>Use the question palette to navigate and mark questions for review.</li>
             <li>Submission is final. Your score is calculated using the configured marking scheme.</li>
           </ul>
-          <div className="mt-7 flex flex-wrap items-center justify-between gap-3">{authenticated===false&&<Link href="/login" className="text-xs font-semibold text-[#8b4a3f] underline underline-offset-4">Sign in to continue</Link>}<button disabled={authenticated!==true} onClick={startTest} className="btn btn-neutral rounded-full px-6 normal-case disabled:opacity-50">{authenticated===null?"Checking account…":"Start test" <ArrowRightIcon className="size-4"/></button></div>
+          <div className="mt-7 flex flex-wrap items-center justify-between gap-3">{authenticated===false&&<Link href="/login" className="text-xs font-semibold text-[#8b4a3f] underline underline-offset-4">Sign in to continue</Link>}<button disabled={authenticated!==true} onClick={startTest} className="btn btn-neutral rounded-full px-6 normal-case disabled:opacity-50">{authenticated===null?"Checking account…":"Start test"} <ArrowRightIcon className="size-4"/></button></div>
         </>}
       </Modal>
 
