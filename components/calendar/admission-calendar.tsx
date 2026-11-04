@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRightIcon, CalendarDaysIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
-import { SiteHeader } from "@/components/site-header";
 
 type EventItem = {
   id: string;
