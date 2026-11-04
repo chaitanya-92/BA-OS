@@ -38,8 +38,8 @@ npm run db:migrate
 npm run dev
 ```
 
-Check `/api/health` for database connectivity. Generate and apply the schema migration, then run `npm run db:seed` to add the initial CAT, XAT, SNAP, NMAT and CMAT exam taxonomy. The dedicated PYQ library is available at `/pyqs`. Public question endpoints only return published records. The protected ingestion endpoint requires `ADMIN_IMPORT_TOKEN` and always queues imported questions as unpublished for review. See `docs/database-setup.md` for details.
+Check `/api/health` for database connectivity. Generate and apply the schema migration, then run `npm run db:seed` to add the initial CAT, XAT, SNAP, NMAT and CMAT exam taxonomy. The dedicated PYQ library is available at `/pyqs`, the topic accordion learning library at `/learn`, the mock/sectional test catalogue at `/tests`, and the admin import/review workspace at `/admin/questions`. Public question endpoints only return published records. The protected ingestion endpoint requires `ADMIN_IMPORT_TOKEN` and always queues imported questions as unpublished for review. See `docs/database-setup.md` for details.
 
 ## Current implementation
 
-The public landing page, database schema foundation, health/catalogue/question APIs, protected question ingestion endpoint, taxonomy seed script and initial PYQ library UI are committed. The first migration still needs to be generated and applied against the user's Neon database. Authentication, a full admin review UI, the interactive mock engine and student analytics are not yet complete.
+The public landing page, PYQ library, topic-based learning library, published test catalogue, timed test runner, shared modal system, admin import/review workspace, database APIs and taxonomy seed script are committed. The first migration still needs to be generated and applied against the user's Neon database. Authentication, student-owned attempt history, analytics, a full content authoring editor and production hardening remain in progress.
