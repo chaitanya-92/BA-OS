@@ -8,9 +8,10 @@
 - Reusable skeleton primitives and toast host.
 
 ## Phase 2 — Platform foundations (next priority)
-- Neon PostgreSQL using a rotated secret; Drizzle schema and migrations.
-- Authentication and user profile.
-- Subject/topic/subtopic taxonomy and source registry.
+- Neon PostgreSQL connection, Drizzle schema, typed database client and Drizzle Kit migration tooling (schema committed; first migration still needs local generation and application).
+- Database health endpoint and validated, paginated published-question API.
+- Exam/section and subject/topic/subtopic taxonomy, source registry, question/options/solutions, tests/attempts/responses and study-resource tables.
+- Authentication and user profile (provider decision still pending).
 - Admin-only import and review workflows.
 
 ## Phase 3 — Learning library
