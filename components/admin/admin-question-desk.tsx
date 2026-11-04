@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import Link from "next/link";
 import { ArrowPathIcon, CheckCircleIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, LockClosedIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@/components/ui/modal";
 
@@ -155,7 +156,7 @@ export function AdminQuestionDesk() {
   return (
     <main className="min-h-screen bg-[var(--paper)]">
       <header className="border-b border-[var(--line)] bg-[#f7f5f0]/95">
-        <div className="page-shell flex h-[76px] items-center justify-between"><a href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></a><span className="inline-flex items-center gap-2 text-xs text-[#817b72]"><LockClosedIcon className="size-4"/> Admin workspace</span></div>
+        <div className="page-shell flex h-[76px] items-center justify-between"><Link href="/" className="font-display text-xl font-bold tracking-[-.06em]">MBA OS<span className="text-[var(--accent)]">.</span></Link><span className="inline-flex items-center gap-2 text-xs text-[#817b72]"><LockClosedIcon className="size-4"/> Admin workspace</span></div>
       </header>
       <section className="page-shell pb-10 pt-14 sm:pt-20">
         <p className="eyebrow">Content operations</p>
@@ -169,7 +170,7 @@ export function AdminQuestionDesk() {
             <label className="mt-4 block text-xs font-medium text-[#625d55]">Admin import token</label>
             <input type="password" autoComplete="off" value={token} onChange={(event) => setToken(event.target.value)} placeholder="Paste ADMIN_IMPORT_TOKEN" className="mt-2 h-12 w-full rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-4 text-sm outline-none focus:border-[#8b4a3f]"/>
             <button onClick={() => void loadPending()} disabled={loading || !token} className="btn btn-neutral mt-3 w-full rounded-full normal-case"><ArrowPathIcon className="size-4"/> Load review queue</button>
-            <p className="mt-3 text-[10px] leading-5 text-[#817b72]">The token stays in this page's memory and is sent only in a request header. Do not share it or commit it.</p>
+            <p className="mt-3 text-[10px] leading-5 text-[#817b72]">The token stays in this page&apos;s memory and is sent only in a request header. Do not share it or commit it.</p>
           </section>
           <section className="rounded-2xl border border-[var(--line)] bg-white/65 p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3"><h2 className="text-sm font-semibold">Import questions</h2><span className="text-[10px] uppercase tracking-wider text-[#817b72]">JSON · max 100</span></div>
