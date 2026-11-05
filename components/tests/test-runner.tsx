@@ -74,7 +74,6 @@ export function TestRunner({ slug }: { slug: string }) {
   const [started, setStarted] = useState(false);
   const [remaining, setRemaining] = useState(0);
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [showPalette, setShowPalette] = useState(false);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
