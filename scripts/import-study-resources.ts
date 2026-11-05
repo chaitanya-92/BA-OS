@@ -17,6 +17,18 @@ async function main() {
   const token = process.env.ADMIN_IMPORT_TOKEN ?? "";
   if (!base || !token) throw new Error("Set MBA_OS_BASE_URL and ADMIN_IMPORT_TOKEN before importing.");
   const adminToken: string = token;
+  try {
+    const probe = await fetch(base + "/api/admin/content", {
+      method: "GET",
+      headers: { "x-admin-import-token": adminToken },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (probe.status === 401) throw new Error("The server is reachable, but ADMIN_IMPORT_TOKEN does not match the value loaded by Next.js. Restart npm run dev after editing .env.local.");
+    if (!probe.ok) throw new Error(`The server is reachable but the admin endpoint returned HTTP ${probe.status}. Check the Next.js terminal and database connection.`);
+  } catch (error) {
+    const cause = error instanceof Error ? (error.cause instanceof Error ? error.cause.message : error.message) : String(error);
+    throw new Error(`Cannot reach ${base}/api/admin/content (${cause}). Start npm run dev in another terminal and set MBA_OS_BASE_URL to the exact local URL/port shown by Next.js.`);
+  }
   const payload = JSON.parse(await readFile(file, "utf8")) as { resources: Resource[] };
   if (!Array.isArray(payload.resources) || payload.resources.length === 0) throw new Error("No resources found in import file.");
 
@@ -65,7 +77,7 @@ async function main() {
       skipped += result.skipped ?? 0;
     } catch (error) {
       failed++;
-      errors.push(resource.title + ": " + (error instanceof Error ? error.message : String(error)));
+      errors.push(resource.title + ": " + (error instanceof Error ? (error.cause instanceof Error ? error.cause.message : error.message) : String(error)));
     }
   }
   console.log(JSON.stringify({ source: file, total: payload.resources.length, created, skipped, failed, errors }, null, 2));
