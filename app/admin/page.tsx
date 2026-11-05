@@ -8,7 +8,7 @@ const workspaces = [
     href: "/admin/content",
     action: "Open content desk",
     icon: BookOpenIcon,
-    status: "37 CAT Quant drafts imported",
+    status: "CAT Quant revision content awaiting import and review",
   },
   {
     title: "Question bank",
