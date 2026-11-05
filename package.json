@@ -12,7 +12,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed-taxonomy.ts",
-    "db:seed:content": "tsx scripts/seed-quant-content.ts"
+    "db:seed:content": "tsx scripts/seed-quant-content.ts",
+    "db:bootstrap": "npm run db:migrate && npm run db:seed && npm run db:seed:content"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
