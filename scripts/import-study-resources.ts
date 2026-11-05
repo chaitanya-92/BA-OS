@@ -2,7 +2,7 @@
 import { readFile } from "node:fs/promises";
 import { config } from "dotenv";
 config({ path: ".env.local" });
-type Resource = { title: string; slug: string; kind: string; subject: string; topic: string; sourceFile: string; content: string; metadata: Record<string, unknown> };
+type Resource = { title: string; slug: string; kind: string; subject: string; topic: string; sourceFile: string; content: string; metadata: Record<string, unknown>; sourceKind?: "editorial" | "original_practice" | "third_party"; contentMode?: "original" | "licensed" | "summary"; publisher?: string; rightsNote?: string };
 const file = process.argv[2] ?? "data/imports/mba-os-study-resources.json";
 const base = process.env.MBA_OS_BASE_URL?.replace(/\/$/, "");
 const token = process.env.ADMIN_IMPORT_TOKEN ?? "";
@@ -15,10 +15,10 @@ for (const resource of payload.resources) {
     const response = await fetch(base + "/api/admin/content", {
       method: "POST", headers: { "content-type": "application/json", "x-admin-import-token": adminToken },
       body: JSON.stringify({
-        source: { name: resource.sourceFile, kind: "editorial", publisher: "User-provided study material",
-          rightsNote: "Original study/revision material supplied in the user's Library. Extracted text is preserved; diagrams and tables should be visually checked before approval.",
+        source: { name: resource.sourceFile, kind: resource.sourceKind ?? "editorial", publisher: resource.publisher ?? "User-provided study material",
+          rightsNote: resource.rightsNote ?? "Original study/revision material supplied in the user library. Extracted text is preserved; diagrams and tables should be visually checked before approval.",
           notes: "Imported as a draft. Confirm layout and source attribution before publication." },
-        contentMode: "original",
+        contentMode: resource.contentMode ?? "original",
         entries: [{ title: resource.title, slug: resource.slug, entryType: "note", content: resource.content,
           sourceReference: resource.sourceFile, tags: [resource.subject, resource.topic, "PDF extraction"] }],
       }),
