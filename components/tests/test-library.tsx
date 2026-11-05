@@ -22,6 +22,21 @@ const kindLabels: Record<TestItem["kind"], string> = {
   diagnostic: "Diagnostic",
 };
 
+
+function TestTypeDropdown({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const options = [{ value: "all", label: "All test types" }, { value: "full_mock", label: "Full mocks" }, { value: "sectional", label: "Sectional tests" }, { value: "topic_practice", label: "Topic practice" }, { value: "diagnostic", label: "Diagnostics" }];
+  const selected = options.find((option) => option.value === value) ?? options[0];
+  return <div className="relative z-20 min-w-[170px]">
+    <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)} className="flex h-10 w-full items-center justify-between gap-4 rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3 text-left text-xs text-[#393630] shadow-sm transition hover:border-[#bdb5a8] focus-visible:outline-2 focus-visible:outline-[var(--accent)]">
+      <span>{selected.label}</span><span className={"text-[#817b72] transition-transform " + (open ? "rotate-180" : "")}>⌄</span>
+    </button>
+    {open && <><button aria-label="Close test type menu" className="fixed inset-0 z-[-1] cursor-default" onClick={() => setOpen(false)} /><div role="listbox" aria-label="Filter tests" className="absolute right-0 top-[calc(100%+8px)] z-30 w-full overflow-hidden rounded-xl border border-[var(--line)] bg-[#fffefa] p-1.5 shadow-[0_16px_42px_rgba(25,23,19,.16)]">
+      {options.map((option) => <button key={option.value} type="button" role="option" aria-selected={value === option.value} onClick={() => { onChange(option.value); setOpen(false); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs transition " + (value === option.value ? "bg-[#efede7] font-semibold text-[#171717]" : "text-[#625d55] hover:bg-[#f4f1eb]")}>{option.label}<span>{value === option.value ? "✓" : ""}</span></button>)}
+    </div></>}
+  </div>;
+}
+
 export function TestLibrary() {
   const [tests, setTests] = useState<TestItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,13 +72,7 @@ export function TestLibrary() {
       <section className="page-shell pb-20">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-white/60 p-4">
           <div className="flex items-center gap-2 text-xs text-[#817b72]"><DocumentTextIcon className="size-4"/> {loading ? "Loading test catalogue…" : `${tests.length} published tests`}</div>
-          <select value={kind} onChange={(event) => setKind(event.target.value)} className="h-10 cursor-pointer rounded-lg border border-[var(--line)] bg-[#fbfaf7] px-3 text-xs outline-none">
-            <option value="all">All test types</option>
-            <option value="full_mock">Full mocks</option>
-            <option value="sectional">Sectional tests</option>
-            <option value="topic_practice">Topic practice</option>
-            <option value="diagnostic">Diagnostics</option>
-          </select>
+          <TestTypeDropdown value={kind} onChange={setKind} />
         </div>
         {error && <div role="alert" className="mt-5 rounded-xl border border-[#e2c7bf] bg-[#fbf3f0] p-4 text-sm text-[#87483e]">{error}</div>}
         {loading && <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{[0,1,2].map((item) => <div key={item} className="h-56 animate-pulse rounded-2xl border border-[var(--line)] bg-white/55"/>)}</div>}
