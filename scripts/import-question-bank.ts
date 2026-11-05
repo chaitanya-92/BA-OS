@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { config } from "dotenv";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "../lib/db";
-import { exams, examSections, subjects, topics } from "../lib/db/schema";
+import { exams, examSections, questions, subjects, topics } from "../lib/db/schema";
 config({ path: ".env.local" });
 
 type BankQuestion = {
@@ -30,6 +30,19 @@ async function main() {
   const topicRows = await db.select({ id: topics.id, slug: topics.slug }).from(topics).where(eq(topics.subjectId, quant.id));
   const topicBySlug = new Map(topicRows.map((topic) => [topic.slug, topic.id]));
   const slugify = (value: string) => value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const sourceReference = "CAT Arithmetic 320 Questions & Solutions Workbook — original practice material";
+  const existingQuestions = await db.select({ id: questions.id, metadata: questions.metadata })
+    .from(questions).where(eq(questions.sourceReference, sourceReference));
+  let backfilled = 0;
+  for (const existing of existingQuestions) {
+    const topicName = typeof existing.metadata.topic === "string" ? existing.metadata.topic : "";
+    const topicId = topicBySlug.get(slugify(topicName)) ?? null;
+    await db.update(questions).set({
+      examId: cat.id, examSectionId: qa.id, subjectId: quant.id, topicId,
+      updatedAt: new Date(),
+    }).where(eq(questions.id, existing.id));
+    backfilled++;
+  }
   const bank = JSON.parse(await readFile(file, "utf8")) as Bank;
   if (!Array.isArray(bank.questions) || bank.questions.length === 0) throw new Error("No questions found in import file.");
 
@@ -48,7 +61,7 @@ async function main() {
         examId: cat.id, examSectionId: qa.id, subjectId: quant.id,
         topicId: topicBySlug.get(slugify(q.topic)) ?? null,
         questionType: "mcq_single", difficulty: q.difficulty, prompt: q.prompt, options,
-        sourceReference: "CAT Arithmetic 320 Questions & Solutions Workbook — original practice material",
+        sourceReference,
         sourceQuestionNumber: q.sourceQuestionNumber,
         metadata: { topic: q.topic, origin: q.origin, sourceFile: "CAT_Arithmetic_320_Questions_and_Solutions_Workbook.docx",
           sourceFingerprint: q.fingerprint, sourceValidation: q.validation, importedAs: "unpublished_review_queue" },
@@ -71,7 +84,7 @@ async function main() {
 
   await Promise.all(Array.from({ length: concurrency }, () => worker()));
   await db.$client.end?.();
-  console.log(JSON.stringify({ source: file, total: bank.questions.length, imported, duplicates, failed, taxonomy: { exam: "CAT", section: "QA", subject: "Quantitative Aptitude", mappedTopics: topicRows.length }, errors: errors.slice(0, 30) }, null, 2));
+  console.log(JSON.stringify({ source: file, total: bank.questions.length, imported, duplicates, failed, taxonomy: { exam: "CAT", section: "QA", subject: "Quantitative Aptitude", mappedTopics: topicRows.length, existingQuestionsBackfilled: backfilled }, errors: errors.slice(0, 30) }, null, 2));
   if (failed) process.exitCode = 1;
 }
 
