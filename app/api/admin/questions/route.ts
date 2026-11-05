@@ -55,6 +55,16 @@ export async function GET(request: NextRequest) {
 
   try {
     const db = getDb();
+    if (request.nextUrl.searchParams.get("published") === "true") {
+      const published = await db.select({
+        id: questions.id,
+        prompt: questions.prompt,
+        examYear: questions.examYear,
+        examSlot: questions.examSlot,
+        verificationStatus: questions.verificationStatus,
+      }).from(questions).where(eq(questions.isPublished, true)).orderBy(asc(questions.createdAt)).limit(250);
+      return NextResponse.json({ items: published });
+    }
     const requestedId = request.nextUrl.searchParams.get("id");
     if (requestedId) {
       const id = z.string().uuid().safeParse(requestedId);
