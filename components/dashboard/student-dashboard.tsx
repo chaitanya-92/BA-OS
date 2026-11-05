@@ -7,7 +7,15 @@ type User={id:string;email:string;displayName:string;bio:string|null;targetExam:
 export function StudentDashboard(){
  const router=useRouter();
  const [data,setData]=useState<Data|null>(null),[user,setUser]=useState<User|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[profileOpen,setProfileOpen]=useState(false),[name,setName]=useState(""),[bio,setBio]=useState(""),[exam,setExam]=useState(""),[year,setYear]=useState("");
- useEffect(()=>{Promise.all([fetch("/api/dashboard",{cache:"no-store"}),fetch("/api/auth/me",{cache:"no-store"})]).then(async([a,b])=>{if(a.status===401||b.status===401){router.push("/login");return;}if(!a.ok)throw new Error("Could not load your dashboard.");const d=await a.json(),u=(await b.json()).user as User;setData(d);setUser(u);setName(u.displayName);setBio(u.bio||"");setExam(u.targetExam||"");setYear(u.targetYear?String(u.targetYear):"");}).catch(e=>setError(e instanceof Error?e.message:"Something went wrong.")).finally(()=>setLoading(false));},[]);
+ useEffect(()=>{Promise.all([fetch("/api/dashboard",{cache:"no-store"}),fetch("/api/auth/me",{cache:"no-store"})]).then(async([a,b])=>{if(a.status===401||b.status===401){router.push("/login");return;}if(!a.ok)throw new Error("Could not load your dashboard.");const d=await a.json(),u=(await b.json()).user as User|null;
+if(!u)throw new Error("Your session could not be verified. Please sign in again.");
+setData({
+summary:{attempts:Number(d.summary?.attempts??0),averageScore:Number(d.summary?.averageScore??0),correct:Number(d.summary?.correct??0),incorrect:Number(d.summary?.incorrect??0),unanswered:Number(d.summary?.unanswered??0)},
+revision:{total:Number(d.revision?.total??0),due:Number(d.revision?.due??0)},
+recent:Array.isArray(d.recent)?d.recent:[],
+weakTopics:Array.isArray(d.weakTopics)?d.weakTopics:[],
+});
+setUser(u);setName(u.displayName);setBio(u.bio||"");setExam(u.targetExam||"");setYear(u.targetYear?String(u.targetYear):"");}).catch(e=>setError(e instanceof Error?e.message:"Something went wrong.")).finally(()=>setLoading(false));},[]);
  async function save(e:React.FormEvent){e.preventDefault();const r=await fetch("/api/profile",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({displayName:name,bio:bio||null,targetExam:exam||null,targetYear:year?Number(year):null})});const d=await r.json();if(!r.ok){setError(d.error||"Could not save profile.");return;}setUser({...user!,...d.user});setProfileOpen(false);}
  async function logout(){await fetch("/api/auth/logout",{method:"POST"});router.push("/");router.refresh();}
  if(loading)return <main className="page-shell py-20"><div className="skeleton h-10 w-64 rounded-xl"/><div className="mt-8 grid gap-4 md:grid-cols-4">{[1,2,3,4].map(x=><div key={x} className="skeleton h-28 rounded-xl"/>)}</div></main>;
