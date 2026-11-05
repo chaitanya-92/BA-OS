@@ -5,10 +5,8 @@ import { contentEntries, questions, studyResources, tests } from "../lib/db/sche
 
 config({ path: ".env.local" });
 
-async function count(table: typeof contentEntries | typeof questions | typeof studyResources | typeof tests, where?: ReturnType<typeof eq>) {
-  const db = getDb();
-  const query = db.select({ count: sql<number>`count(*)::int` }).from(table);
-  const [row] = where ? await query.where(where) : await query;
+async function countRows(query: PromiseLike<{ count: number }[]>) {
+  const [row] = await query;
   return Number(row?.count ?? 0);
 }
 
@@ -16,17 +14,17 @@ async function main() {
   const db = getDb();
   const report = {
     learningResources: {
-      publishedContentEntries: await count(contentEntries, eq(contentEntries.status, "published")),
-      drafts: await count(contentEntries, eq(contentEntries.status, "draft")),
-      publishedStudyResources: await count(studyResources, eq(studyResources.isPublished, true)),
+      publishedContentEntries: await countRows(db.select({ count: sql<number>`count(*)::int` }).from(contentEntries).where(eq(contentEntries.status, "published"))),
+      drafts: await countRows(db.select({ count: sql<number>`count(*)::int` }).from(contentEntries).where(eq(contentEntries.status, "draft"))),
+      publishedStudyResources: await countRows(db.select({ count: sql<number>`count(*)::int` }).from(studyResources).where(eq(studyResources.isPublished, true))),
     },
     questionBank: {
-      published: await count(questions, eq(questions.isPublished, true)),
-      pendingReview: await count(questions, eq(questions.isPublished, false)),
+      published: await countRows(db.select({ count: sql<number>`count(*)::int` }).from(questions).where(eq(questions.isPublished, true))),
+      pendingReview: await countRows(db.select({ count: sql<number>`count(*)::int` }).from(questions).where(eq(questions.isPublished, false))),
     },
     tests: {
-      published: await count(tests, eq(tests.isPublished, true)),
-      drafts: await count(tests, eq(tests.isPublished, false)),
+      published: await countRows(db.select({ count: sql<number>`count(*)::int` }).from(tests).where(eq(tests.isPublished, true))),
+      drafts: await countRows(db.select({ count: sql<number>`count(*)::int` }).from(tests).where(eq(tests.isPublished, false))),
     },
   };
   console.log(JSON.stringify(report, null, 2));
