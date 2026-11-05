@@ -1,5 +1,7 @@
 #!/usr/bin/env tsx
 import { readFile } from "node:fs/promises";
+import { config } from "dotenv";
+config({ path: ".env.local" });
 type Resource = { title: string; slug: string; kind: string; subject: string; topic: string; sourceFile: string; content: string; metadata: Record<string, unknown> };
 const file = process.argv[2] ?? "data/imports/mba-os-study-resources.json";
 const base = process.env.MBA_OS_BASE_URL?.replace(/\/$/, "");
