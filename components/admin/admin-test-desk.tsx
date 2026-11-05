@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 type AdminTest = { id: string; title: string; slug: string; kind: string; durationMinutes: number; isPublished: boolean; sectionCount: number; questionCount: number };
+type PublishedQuestion = { id: string; prompt: string; examYear: number | null; examSlot: string | null; verificationStatus: string };
 const example = {
   title: "CAT Quantitative Aptitude — Arithmetic Practice",
   slug: "cat-quant-arithmetic-practice",
@@ -24,6 +25,8 @@ export function AdminTestDesk() {
   const [token, setToken] = useState("");
   const [payload, setPayload] = useState(JSON.stringify(example, null, 2));
   const [items, setItems] = useState<AdminTest[]>([]);
+  const [questions, setQuestions] = useState<PublishedQuestion[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -36,6 +39,10 @@ export function AdminTestDesk() {
       const data = await response.json() as { items?: AdminTest[]; error?: string };
       if (!response.ok) throw new Error(data.error ?? "Unable to load tests.");
       setItems(data.items ?? []);
+      const questionResponse = await fetch("/api/admin/questions?published=true", { headers: { "x-admin-import-token": token }, cache: "no-store" });
+      const questionData = await questionResponse.json() as { items?: PublishedQuestion[]; error?: string };
+      if (!questionResponse.ok) throw new Error(questionData.error ?? "Unable to load published questions.");
+      setQuestions(questionData.items ?? []);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to load tests."); }
     finally { setBusy(false); }
   }, [token]);
@@ -77,6 +84,16 @@ export function AdminTestDesk() {
       <div className="rounded-2xl border border-[var(--line)] bg-white/65 p-5">
         <label className="block text-xs font-semibold">Admin import token</label>
         <input type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} className="mt-2 h-11 w-full rounded-lg border border-[var(--line)] bg-[#fbfaf7] px-3 text-sm" placeholder="ADMIN_IMPORT_TOKEN" />
+        <div className="mt-5 rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-4">
+          <div className="flex items-center justify-between gap-2"><h2 className="text-sm font-semibold">Published question picker</h2><span className="text-[10px] text-[#817b72]">{questions.length} available</span></div>
+          <p className="mt-1 text-[11px] leading-5 text-[#817b72]">Select verified questions, then insert their IDs into the test configuration. Only published questions are eligible.</p>
+          <div className="mt-3 max-h-64 space-y-2 overflow-y-auto">{questions.map(question => <label key={question.id} className="flex cursor-pointer items-start gap-3 rounded-lg border border-[var(--line)] bg-white p-3">
+            <input type="checkbox" checked={selectedIds.includes(question.id)} onChange={event => setSelectedIds(current => event.target.checked ? [...current, question.id] : current.filter(id => id !== question.id))} className="mt-1 accent-[#8b4a3f]" />
+            <span className="min-w-0"><span className="block line-clamp-2 text-xs leading-5">{question.prompt}</span><span className="mt-1 block font-mono text-[9px] text-[#918a80]">{question.id}</span></span>
+          </label>)}
+          {questions.length === 0 && <p className="py-5 text-center text-xs text-[#817b72]">No published questions yet. Import and verify questions in the <Link href="/admin/questions" className="underline">question desk</Link> first.</p>}</div>
+          <button disabled={!selectedIds.length} onClick={() => setPayload(JSON.stringify({ ...example, sections: [{ ...example.sections[0], questionIds: selectedIds }] }, null, 2))} className="btn btn-outline btn-sm mt-3 rounded-full normal-case">Insert {selectedIds.length} selected question IDs</button>
+        </div>
         <div className="mt-5 flex items-center justify-between"><h2 className="text-sm font-semibold">Test configuration JSON</h2><button onClick={() => setPayload(JSON.stringify(example,null,2))} className="text-xs text-[#8b4a3f] underline">Load example</button></div>
         <textarea value={payload} onChange={e => setPayload(e.target.value)} rows={24} spellCheck={false} className="mt-3 w-full rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-4 font-mono text-xs leading-6" />
         <button disabled={busy || !token.trim()} onClick={() => void create()} className="btn btn-neutral mt-3 rounded-full normal-case">Create draft test</button>
