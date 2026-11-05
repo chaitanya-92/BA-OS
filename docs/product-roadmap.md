@@ -47,3 +47,14 @@
 - Deployment, production smoke tests and rollback procedure.
 
 The core student workflow is implemented, but email verification/password recovery and production security hardening are still outstanding.
+
+## Current hardening work — `feat/production-hardening`
+
+- Content ingestion now always creates unpublished drafts. Re-importing an existing slug never silently publishes an existing draft.
+- Editing a content entry returns it to draft/unreviewed state and clears its prior review timestamp.
+- Content review actions are aligned between the admin UI and API. Explicit approval checks source attribution and documented third-party rights notes; eligible original/editorial drafts may be bulk-published while retaining their unreviewed label.
+- Timed-test submission rejects future/invalid start times, expired sessions, duplicate question responses and submissions that omit assigned questions. The client prevents concurrent repeat submissions; grading remains server-side.
+
+## Remaining launch requirements
+
+The repository still needs deployment-specific verification before it can honestly be called production-ready: email verification and password recovery need a configured mail provider; distributed authentication rate limits need shared infrastructure; in-progress attempts need server-side persistence for cross-device recovery; backups/restore and monitoring need operational credentials; and the production deployment needs database migrations, seeded/verified content and end-to-end smoke tests. These are not simulated by local code or documentation.
