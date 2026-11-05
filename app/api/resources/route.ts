@@ -39,6 +39,9 @@ export async function GET(request: NextRequest) {
         kind: studyResources.kind,
         content: studyResources.content,
         externalUrl: studyResources.externalUrl,
+        verificationStatus: sql<string>`'verified'`,
+        sourceReference: sql<string | null>`null`,
+        sourcePage: sql<string | null>`null`,
       })
       .from(studyResources)
       .where(and(...conditions))
@@ -53,9 +56,11 @@ export async function GET(request: NextRequest) {
       kind: contentEntries.entryType,
       content: contentEntries.content,
       externalUrl: sql<string | null>`null`,
+      verificationStatus: contentEntries.verificationStatus,
+      sourceReference: contentEntries.sourceReference,
+      sourcePage: contentEntries.sourcePage,
     }).from(contentEntries).where(and(
       eq(contentEntries.status, "published"),
-      eq(contentEntries.verificationStatus, "verified"),
       ...(filters.subjectId ? [eq(contentEntries.subjectId, filters.subjectId)] : []),
       ...(filters.topicId ? [eq(contentEntries.topicId, filters.topicId)] : []),
       ...(filters.kind ? [eq(contentEntries.entryType, filters.kind as "note" | "formula" | "trap" | "shortcut" | "checklist")] : []),
