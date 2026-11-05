@@ -39,6 +39,45 @@ function prettyType(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+
+type FilterOption = { value: string; label: string; group?: string };
+function FilterSelect({ label, value, options, onChange, disabled = false }: {
+  label: string; value: string; options: FilterOption[]; onChange: (value: string) => void; disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const selected = options.find((option) => option.value === value);
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    document.addEventListener("pointerdown", closeOnOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => { document.removeEventListener("pointerdown", closeOnOutside); document.removeEventListener("keydown", closeOnEscape); };
+  }, [open]);
+  return (
+    <div ref={root} className="relative min-w-0">
+      <button type="button" disabled={disabled} aria-haspopup="listbox" aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); setOpen(true); } }}
+        className="flex h-12 w-full items-center gap-2 rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3 text-left transition-colors hover:border-[#c9c1b4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#8b4a3f]/40 disabled:cursor-not-allowed disabled:opacity-50">
+        <span className="shrink-0 text-xs text-[#817b72]">{label}</span>
+        <span className="min-w-0 flex-1 truncate text-sm text-[#242321]">{selected?.label ?? options[0]?.label ?? "Select"}</span>
+        <svg aria-hidden="true" viewBox="0 0 20 20" className={`size-4 shrink-0 text-[#817b72] transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6"><path d="m5 7.5 5 5 5-5"/></svg>
+      </button>
+      {open && !disabled && <div role="listbox" aria-label={label} className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-64 overflow-y-auto rounded-xl border border-[var(--line)] bg-[#fffefa] p-1.5 shadow-[0_14px_38px_rgba(34,30,24,.16)]">
+        {options.map((option, index) => <div key={option.value}>
+          {option.group && (index === 0 || options[index - 1]?.group !== option.group) && <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-[#91897d]">{option.group}</p>}
+          <button type="button" role="option" aria-selected={value === option.value} onClick={() => { onChange(option.value); setOpen(false); }}
+            className={`flex min-h-9 w-full items-center rounded-lg px-3 py-2 text-left text-sm transition-colors ${value === option.value ? "bg-[#efede7] font-semibold text-[#242321]" : "text-[#514d46] hover:bg-[#f3f0e9]"}`}>
+            <span className="min-w-0 flex-1">{option.label}</span>{value === option.value && <span aria-hidden="true" className="ml-2 text-[#8b4a3f]">✓</span>}
+          </button>
+        </div>)}
+      </div>}
+    </div>
+  );
+}
+
 export function PyqLibrary() {
   const [query, setQuery] = useState("");
   const [year, setYear] = useState("");
@@ -160,55 +199,16 @@ export function PyqLibrary() {
       <section className="page-shell pb-20">
         <div className="rounded-2xl border border-[var(--line)] bg-white/65 p-4 sm:p-5">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <label className="flex h-12 items-center gap-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-4">
+            <label className="flex h-12 min-w-0 items-center gap-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-4">
               <MagnifyingGlassIcon className="size-4 shrink-0 text-[#817b72]"/>
               <input value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }} placeholder="Search within question text…" className="w-full bg-transparent text-sm outline-none placeholder:text-[#a29b90]"/>
             </label>
-            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
-              <span className="mr-2 text-xs text-[#817b72]">Exam</span>
-              <select value={examId} onChange={(event) => { setExamId(event.target.value); setSectionId(""); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
-                <option value="">All exams</option>
-                {catalog.exams.map((exam) => <option key={exam.id} value={exam.id}>{exam.name}</option>)}
-              </select>
-            </label>
-            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
-              <span className="mr-2 text-xs text-[#817b72]">Section</span>
-              <select value={sectionId} onChange={(event) => { setSectionId(event.target.value); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
-                <option value="">All sections</option>
-                {(examId ? catalog.exams.filter((exam) => exam.id === examId) : catalog.exams).map((exam) => <optgroup key={exam.id} label={exam.name}>{catalog.sections.filter((section) => section.examId === exam.id).map((section) => <option key={section.id} value={section.id}>{section.name}</option>)}</optgroup>)}
-              </select>
-            </label>
-            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
-              <span className="mr-2 text-xs text-[#817b72]">Subject</span>
-              <select value={subjectId} onChange={(event) => { setSubjectId(event.target.value); setTopicId(""); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
-                <option value="">All subjects</option>
-                {catalog.subjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}
-              </select>
-            </label>
-            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
-              <span className="mr-2 text-xs text-[#817b72]">Topic</span>
-              <select value={topicId} onChange={(event) => { setTopicId(event.target.value); setPage(0); }} disabled={!subjectId} className="w-full cursor-pointer bg-transparent text-sm outline-none disabled:opacity-50">
-                <option value="">All topics</option>
-                {catalog.topics.filter((topic) => topic.subjectId === subjectId).map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}
-              </select>
-            </label>
-            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
-              <span className="mr-2 text-xs text-[#817b72]">Year</span>
-              <select value={year} onChange={(event) => { setYear(event.target.value); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
-                <option value="">All years</option>
-                {Array.from({ length: 36 }, (_, index) => 2026 - index).map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-            </label>
-            <label className="flex h-12 items-center rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3">
-              <span className="mr-2 text-xs text-[#817b72]">Level</span>
-              <select value={difficulty} onChange={(event) => { setDifficulty(event.target.value); setPage(0); }} className="w-full cursor-pointer bg-transparent text-sm outline-none">
-                <option value="">All levels</option>
-                <option value="easy">Easy</option>
-                <option value="moderate">Moderate</option>
-                <option value="difficult">Difficult</option>
-                <option value="unrated">Not rated</option>
-              </select>
-            </label>
+            <FilterSelect label="Exam" value={examId} options={[{value:"",label:"All exams"},...catalog.exams.map((exam)=>({value:exam.id,label:exam.name}))]} onChange={(value)=>{setExamId(value);setSectionId("");setPage(0);}}/>
+            <FilterSelect label="Section" value={sectionId} options={[{value:"",label:"All sections"},...catalog.exams.flatMap((exam)=>catalog.sections.filter((section)=>section.examId===exam.id).map((section)=>({value:section.id,label:section.name,group:exam.name})))]} onChange={(value)=>{setSectionId(value);setPage(0);}}/>
+            <FilterSelect label="Subject" value={subjectId} options={[{value:"",label:"All subjects"},...catalog.subjects.map((subject)=>({value:subject.id,label:subject.name}))]} onChange={(value)=>{setSubjectId(value);setTopicId("");setPage(0);}}/>
+            <FilterSelect label="Topic" value={topicId} disabled={!subjectId} options={[{value:"",label:"All topics"},...catalog.topics.filter((topic)=>topic.subjectId===subjectId).map((topic)=>({value:topic.id,label:topic.name}))]} onChange={(value)=>{setTopicId(value);setPage(0);}}/>
+            <FilterSelect label="Year" value={year} options={[{value:"",label:"All years"},...Array.from({length:36},(_,index)=>2026-index).map((value)=>({value:String(value),label:String(value)}))]} onChange={(value)=>{setYear(value);setPage(0);}}/>
+            <FilterSelect label="Level" value={difficulty} options={[{value:"",label:"All levels"},{value:"easy",label:"Easy"},{value:"moderate",label:"Moderate"},{value:"difficult",label:"Difficult"},{value:"unrated",label:"Not rated"}]} onChange={(value)=>{setDifficulty(value);setPage(0);}}/>
             <button onClick={resetFilters} className="btn h-12 cursor-pointer rounded-xl border border-[var(--line)] bg-transparent px-4 text-sm font-medium normal-case hover:bg-[#efede7]"><ArrowPathIcon className="size-4"/> Reset</button>
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs text-[#817b72]"><FunnelIcon className="size-4"/> Filters apply to published questions only.</div>
@@ -221,8 +221,8 @@ export function PyqLibrary() {
           {!loading && !error && items.length === 0 && (
             <div className="rounded-2xl border border-dashed border-[#d5cfc4] bg-white/40 px-6 py-16 text-center">
               <BookOpenIcon className="mx-auto size-8 text-[#928b80]"/>
-              <h2 className="mt-4 text-lg font-semibold tracking-tight">No published questions yet</h2>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#817b72]">The library is ready for verified content. Once the database migration is applied and approved questions are imported, they will appear here.</p>
+              <h2 className="mt-4 text-lg font-semibold tracking-tight">{query || year || difficulty || examId || sectionId || subjectId || topicId ? "No questions match these filters" : "No published questions yet"}</h2>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#817b72]">{query || year || difficulty || examId || sectionId || subjectId || topicId ? "Try changing or clearing one or more filters." : "The question bank has no published PYQ records yet. Imported study notes and formulas live in the Learning Library; verified previous-year questions will appear here after editorial approval."}</p>
               {(query || year || difficulty || examId || sectionId || subjectId || topicId) && <button onClick={resetFilters} className="btn btn-outline mt-5 cursor-pointer rounded-full normal-case">Clear filters</button>}
             </div>
           )}
