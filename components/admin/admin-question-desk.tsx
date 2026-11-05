@@ -159,7 +159,7 @@ export function AdminQuestionDesk() {
       <section className="page-shell pb-10 pt-14 sm:pt-20">
         <p className="eyebrow">Content operations</p>
         <h1 className="editorial-heading mt-4 text-5xl sm:text-6xl">Question import & review.</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-[#716c63]">Bring in properly attributed question records, inspect their provenance and verify answer keys before publishing. The import endpoint never publishes content automatically.</p><Link href="/admin/content" className="mt-4 inline-flex text-xs font-semibold text-[#8b4a3f] underline underline-offset-4">Open notes, formulas & traps authoring →</Link>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-[#716c63]">Bring in properly attributed question records, inspect their provenance and verify answer keys before publishing. The import endpoint never publishes content automatically.</p><div className="mt-4 flex flex-wrap gap-4"><Link href="/admin" className="inline-flex text-xs font-semibold text-[#8b4a3f] underline underline-offset-4">← Admin workspace</Link><Link href="/admin/content" className="inline-flex text-xs font-semibold text-[#8b4a3f] underline underline-offset-4">Open notes, formulas & traps authoring →</Link></div>
       </section>
       <section className="page-shell grid gap-6 pb-20 lg:grid-cols-[.9fr_1.1fr]">
         <div className="space-y-5">
