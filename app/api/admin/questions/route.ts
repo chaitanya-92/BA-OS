@@ -31,6 +31,7 @@ const importSchema = z.object({
   prompt: z.string().trim().min(5).max(20000),
   passage: z.string().max(30000).nullable().optional(),
   options: z.array(optionSchema).max(8).default([]),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   solution: z.object({
     methodName: z.string().trim().max(160).nullable().optional(),
     content: z.string().trim().min(1).max(20000),
@@ -229,6 +230,7 @@ export async function POST(request: NextRequest) {
         contentFingerprint: fingerprint,
         isPublished: false,
         verificationStatus: "unreviewed",
+        metadata: payload.metadata ?? {},
       }).onConflictDoNothing({ target: questions.contentFingerprint }).returning({ id: questions.id });
 
       if (!inserted) return { id: null, duplicate: true };
