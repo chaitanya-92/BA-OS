@@ -18,6 +18,14 @@ const workspaces = [
     icon: ClipboardDocumentListIcon,
     status: "Question ingestion and review",
   },
+  {
+    title: "Test builder",
+    description: "Assemble full mocks, sectional tests and topic practice from reviewed, published questions.",
+    href: "/admin/tests",
+    action: "Open test builder",
+    icon: ClipboardDocumentListIcon,
+    status: "Create, preview and publish assessments",
+  },
 ];
 
 const studentAreas = [
