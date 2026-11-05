@@ -90,6 +90,8 @@ export function PyqLibrary() {
   const [page, setPage] = useState(0);
   const [items, setItems] = useState<Question[]>([]);
   const [hasMore, setHasMore] = useState(false);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [publishedResourceCount, setPublishedResourceCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<QuestionDetail | null>(null);
@@ -105,6 +107,19 @@ export function PyqLibrary() {
       })
       .then((data) => setCatalog(data))
       .catch(() => undefined);
+
+    // Source notes and PDF extracts are learning resources, not question records.
+    // Show their availability separately so an empty PYQ bank is not mistaken
+    // for a broken database connection.
+    fetch("/api/resources", { signal: controller.signal, cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Resources unavailable");
+        return response.json() as Promise<{ items?: unknown[] }>;
+      })
+      .then((data) => setPublishedResourceCount(Array.isArray(data.items) ? data.items.length : 0))
+      .catch(() => {
+        if (!controller.signal.aborted) setPublishedResourceCount(null);
+      });
     return () => controller.abort();
   }, []);
 
@@ -127,12 +142,14 @@ export function PyqLibrary() {
           cache: "no-store",
         });
         if (!response.ok) throw new Error(response.status === 503 ? "The question bank is not connected yet. Complete the Neon migration to load questions." : "Unable to load questions.");
-        const data = (await response.json()) as { items: Question[]; pagination: { hasMore: boolean } };
+        const data = (await response.json()) as { items: Question[]; pagination: { hasMore: boolean; total?: number } };
         setItems(data.items);
+        setTotalQuestions(Number(data.pagination.total ?? data.items.length));
         setHasMore(data.pagination.hasMore);
       } catch (cause) {
         if (cause instanceof Error && cause.name === "AbortError") return;
         setItems([]);
+        setTotalQuestions(0);
         setHasMore(false);
         setError(cause instanceof Error ? cause.message : "Something went wrong.");
       } finally {
@@ -192,7 +209,7 @@ export function PyqLibrary() {
             <h1 className="text-4xl font-semibold tracking-[-.055em] sm:text-5xl">Previous-year questions</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-[#716c63]">Search the question collection and narrow it down by exam, section, subject, topic, year or difficulty. Published records retain their source and review status.</p>
           </div>
-          <div className="text-sm text-[#817b72]"><span className="font-semibold text-[#242321]">{loading ? "—" : items.length}</span> questions on this page</div>
+          <div className="text-sm text-[#817b72]"><span className="font-semibold text-[#242321]">{loading ? "—" : totalQuestions}</span> {totalQuestions === 1 ? "published question" : "published questions"}</div>
         </div>
       </section>
 
@@ -222,7 +239,8 @@ export function PyqLibrary() {
             <div className="rounded-2xl border border-dashed border-[#d5cfc4] bg-white/40 px-6 py-16 text-center">
               <BookOpenIcon className="mx-auto size-8 text-[#928b80]"/>
               <h2 className="mt-4 text-lg font-semibold tracking-tight">{query || year || difficulty || examId || sectionId || subjectId || topicId ? "No questions match these filters" : "No published questions yet"}</h2>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#817b72]">{query || year || difficulty || examId || sectionId || subjectId || topicId ? "Try changing or clearing one or more filters." : "The question bank has no published PYQ records yet. Imported study notes and formulas live in the Learning Library; verified previous-year questions will appear here after editorial approval."}</p>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#817b72]">{query || year || difficulty || examId || sectionId || subjectId || topicId ? "Try changing or clearing one or more filters." : "There are no approved question records in this bank yet. Imported source documents, notes and formulas are stored separately; they are not silently converted into exam questions. Questions appear here after their wording, options and answer keys have been reviewed."}</p>
+              {!query && !year && !difficulty && !examId && !sectionId && !subjectId && !topicId && publishedResourceCount !== null && publishedResourceCount > 0 && <div className="mx-auto mt-5 max-w-md rounded-xl border border-[var(--line)] bg-[#efede7]/70 p-4"><p className="text-sm font-semibold text-[#393630]">{publishedResourceCount} published learning resources are available</p><p className="mt-1 text-xs leading-5 text-[#817b72]">Open your imported study material, source extracts and revision notes in the Learning Library.</p><a href="/learn" className="mt-3 inline-flex text-sm font-semibold text-[var(--accent)] underline underline-offset-4">Open Learning Library →</a></div>}
               {(query || year || difficulty || examId || sectionId || subjectId || topicId) && <button onClick={resetFilters} className="btn btn-outline mt-5 cursor-pointer rounded-full normal-case">Clear filters</button>}
             </div>
           )}
