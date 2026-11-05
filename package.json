@@ -16,7 +16,8 @@
     "db:seed:content": "tsx scripts/seed-quant-content.ts",
     "db:bootstrap": "npm run db:migrate && npm run db:seed && npm run db:seed:content",
     "import:question-bank": "tsx scripts/import-question-bank.ts",
-    "import:study-resources": "tsx scripts/import-study-resources.ts"
+    "import:study-resources": "tsx scripts/import-study-resources.ts",
+    "build:tests": "tsx scripts/build-tests-from-question-bank.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
