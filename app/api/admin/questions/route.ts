@@ -3,7 +3,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
-import { questionOptions, questions, solutions } from "@/lib/db/schema";
+import { questionOptions, questions, solutions, sources } from "@/lib/db/schema";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -211,13 +211,27 @@ export async function POST(request: NextRequest) {
   try {
     const db = getDb();
     const result = await db.transaction(async (tx) => {
+      let resolvedSourceId = payload.sourceId ?? null;
+      if (!resolvedSourceId && payload.sourceReference) {
+        const [existingSource] = await tx.select({ id: sources.id }).from(sources)
+          .where(eq(sources.name, payload.sourceReference)).limit(1);
+        if (existingSource) resolvedSourceId = existingSource.id;
+        else {
+          const [createdSource] = await tx.insert(sources).values({
+            name: payload.sourceReference, kind: "original_practice",
+            rightsNote: "Original practice questions supplied in the user's study library; not represented as official past-year questions.",
+            notes: "Imported into the unpublished review queue with original source wording and question metadata.",
+          }).returning({ id: sources.id });
+          resolvedSourceId = createdSource.id;
+        }
+      }
       const [inserted] = await tx.insert(questions).values({
         examId: payload.examId ?? null,
         examSectionId: payload.examSectionId ?? null,
         subjectId: payload.subjectId ?? null,
         topicId: payload.topicId ?? null,
         subtopicId: payload.subtopicId ?? null,
-        sourceId: payload.sourceId ?? null,
+        sourceId: resolvedSourceId,
         sourceReference: payload.sourceReference ?? null,
         sourcePage: payload.sourcePage ?? null,
         sourceQuestionNumber: payload.sourceQuestionNumber ?? null,
