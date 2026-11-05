@@ -11,6 +11,8 @@ async function main() {
   const db = getDb();
   const [cat] = await db.select({ id: exams.id }).from(exams).where(eq(exams.slug, "cat")).limit(1);
   if (!cat) throw new Error("CAT taxonomy not found. Run npm run db:bootstrap first.");
+  const [quantSubject] = await db.select({ id: subjects.id }).from(subjects).where(eq(subjects.slug, "quantitative-aptitude")).limit(1);
+  if (!quantSubject) throw new Error("Quantitative Aptitude subject taxonomy not found.");
 
   const rows = await db.select({
     id: questions.id,
@@ -61,7 +63,7 @@ async function main() {
   }
 
   const byTopic = new Map<string, QuestionRow[]>();
-  for (const row of rows) if (row.topicId && row.topicName) {
+  for (const row of rows) if (row.subjectId === quantSubject.id && row.topicId && row.topicName) {
     const group = byTopic.get(row.topicId) ?? [];
     group.push(row); byTopic.set(row.topicId, group);
   }
@@ -78,18 +80,25 @@ async function main() {
   }
 
   const qa = rows.filter(row => row.sectionName === "QA");
-  if (qa.length >= 20) {
-    const ids = qa.slice(0, 22).map(row => row.id);
-    await createTest({
-      title: "CAT Quantitative Aptitude — Sectional Test 01", slug: "cat-quant-sectional-01",
-      description: "A timed Quantitative Aptitude sectional built from published, reviewed CAT practice questions.",
-      kind: "sectional", durationMinutes: 40,
-      sections: [{ title: "Quantitative Aptitude", durationMinutes: 40, questionIds: ids }],
-    });
+  const varcAll = rows.filter(row => row.sectionName === "VARC");
+  const dilrAll = rows.filter(row => row.sectionName === "DILR");
+  for (const [sectionName, sectionRows, slug, title, duration] of [
+    ["QA", qa, "cat-quant-sectional-01", "CAT Quantitative Aptitude — Sectional Test 01", 40],
+    ["VARC", varcAll, "cat-varc-sectional-01", "CAT VARC — Sectional Test 01", 40],
+    ["DILR", dilrAll, "cat-dilr-sectional-01", "CAT DILR — Sectional Test 01", 40],
+  ] as const) {
+    if (sectionRows.length >= 20) {
+      const ids = sectionRows.slice(0, sectionName === "QA" ? 22 : 20).map(row => row.id);
+      await createTest({
+        title, slug, description: `A timed ${sectionName} sectional built from published, reviewed CAT questions.`,
+        kind: "sectional", durationMinutes: duration,
+        sections: [{ title: sectionName === "QA" ? "Quantitative Aptitude" : sectionName, durationMinutes: duration, questionIds: ids }],
+      });
+    }
   }
 
-  const varc = rows.filter(row => row.sectionName === "VARC").slice(0, 24);
-  const dilr = rows.filter(row => row.sectionName === "DILR").slice(0, 20);
+  const varc = varcAll.slice(0, 24);
+  const dilr = dilrAll.slice(0, 20);
   const quant = qa.slice(0, 22);
   if (varc.length === 24 && dilr.length === 20 && quant.length === 22) {
     await createTest({
