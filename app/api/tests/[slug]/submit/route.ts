@@ -85,7 +85,10 @@ export async function POST(
     }
 
     const submittedStart = new Date(parsed.data.startedAt);
-    if (submittedStart.getTime() > Date.now() + 60_000) return NextResponse.json({ error: "Invalid attempt start time." }, { status: 400 });
+    const now = Date.now();
+    if (!Number.isFinite(submittedStart.getTime()) || submittedStart.getTime() > now + 60_000) return NextResponse.json({ error: "Invalid attempt start time." }, { status: 400 });
+    if (now - submittedStart.getTime() > test.durationMinutes * 60_000 + 5 * 60_000) return NextResponse.json({ error: "The test session has expired. Start a new attempt." }, { status: 409 });
+    if (parsed.data.responses.length !== questionIds.length || uniqueResponses.size !== parsed.data.responses.length) return NextResponse.json({ error: "Submit exactly one response for every assigned question." }, { status: 400 });
     const trustedTimeSpent = Math.min(test.durationMinutes * 60, Math.max(0, Math.floor((Date.now() - submittedStart.getTime()) / 1000)));
     const sectionMap = new Map(sections.map((section) => [section.id, section]));
     let correctCount = 0;

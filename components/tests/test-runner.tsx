@@ -74,10 +74,10 @@ export function TestRunner({ slug }: { slug: string }) {
   const [started, setStarted] = useState(false);
   const [remaining, setRemaining] = useState(0);
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [showPalette, setShowPalette] = useState(false);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [submissionPending, setSubmissionPending] = useState(false);
 
   useEffect(() => { fetch("/api/auth/me", { cache: "no-store" }).then((response) => response.json()).then((data) => setAuthenticated(Boolean(data.user))).catch(() => setAuthenticated(false)); }, []);
 
@@ -132,8 +132,8 @@ export function TestRunner({ slug }: { slug: string }) {
   const currentResponse = question ? responses[question.id] ?? emptyResponse() : emptyResponse();
 
   const submit = useCallback(async () => {
-    if (!test || !startedAt || !started || submitting || result) return;
-    setSubmitting(true);
+    if (!test || !startedAt || !started || submissionPending || result) return;
+    setSubmissionPending(true);
     try {
       const timeSpentSeconds = Math.max(0, test.durationMinutes * 60 - remaining);
       const payload = {
@@ -167,9 +167,9 @@ export function TestRunner({ slug }: { slug: string }) {
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Submission failed.");
     } finally {
-      setSubmitting(false);
+      setSubmissionPending(false);
     }
-  }, [test, startedAt, started, submitting, result, remaining, allQuestions, responses, slug]);
+  }, [test, startedAt, started, submissionPending, result, remaining, allQuestions, responses, slug]);
 
   useEffect(() => {
     if (!test || !startedAt || !started || result) return;
@@ -355,7 +355,7 @@ export function TestRunner({ slug }: { slug: string }) {
           <div className="rounded-xl bg-[#efede7] p-3"><p className="font-display text-2xl">{allQuestions.length-answeredCount}</p><p className="text-[10px] text-[#716c63]">Unanswered</p></div>
         </div>
         <p className="mt-5 text-sm leading-6 text-[#625d55]">Once submitted, this attempt cannot be changed. Your score will be calculated using the test&apos;s configured marking scheme.</p>
-        <div className="mt-6 flex justify-end gap-2"><button onClick={() => setReviewOpen(false)} className="btn btn-ghost rounded-full normal-case">Continue test</button><button disabled={submitting} onClick={() => void submit()} className="btn btn-neutral rounded-full normal-case">{submitting ? "Submitting…" : "Confirm submission"}</button></div>
+        <div className="mt-6 flex justify-end gap-2"><button onClick={() => setReviewOpen(false)} className="btn btn-ghost rounded-full normal-case">Continue test</button><button disabled={submissionPending} onClick={() => void submit()} className="btn btn-neutral rounded-full normal-case">{submissionPending ? "Submitting…" : "Confirm submission"}</button></div>
       </Modal>
     </main>
   );
