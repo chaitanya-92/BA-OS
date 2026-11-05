@@ -120,7 +120,6 @@ export function PyqLibrary() {
         setPublishedResourceCount(Number.isFinite(data.counts?.total)
           ? Number(data.counts?.total)
           : Array.isArray(data.items) ? data.items.length : 0);
-        if (data.partial) setError("Some learning-resource storage is unavailable; available resources can still be opened in the Learning Library.");
       })
       .catch(() => {
         if (!controller.signal.aborted) setPublishedResourceCount(null);
