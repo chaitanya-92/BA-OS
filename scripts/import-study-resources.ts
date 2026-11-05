@@ -51,7 +51,15 @@ async function main() {
           }]
         })
       });
-      const result = await response.json() as { created?: number; skipped?: number; error?: string };
+      const responseText = await response.text();
+      let result: { created?: number; skipped?: number; error?: string };
+      try {
+        result = JSON.parse(responseText) as { created?: number; skipped?: number; error?: string };
+      } catch {
+        const contentType = response.headers.get("content-type") ?? "unknown content type";
+        const preview = responseText.slice(0, 240).replace(/\\s+/g, " ").trim();
+        throw new Error(`HTTP ${response.status}; expected JSON but received ${contentType}. Response: ${preview}`);
+      }
       if (!response.ok) throw new Error(result.error ?? "HTTP " + response.status);
       created += result.created ?? 0;
       skipped += result.skipped ?? 0;
