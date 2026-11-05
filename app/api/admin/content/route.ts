@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { timingSafeEqual } from "node:crypto";
 import { NextRequest,NextResponse } from "next/server";
 import { z } from "zod";
