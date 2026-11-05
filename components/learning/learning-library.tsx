@@ -170,6 +170,31 @@ export function LearningLibrary() {
                         </details>
                       );
                     })}
+                    {subjectResources.filter((resource) => !resource.topicId).length > 0 && (
+                      <section className="mt-4 rounded-xl border border-dashed border-[var(--line)] bg-[#fbfaf7] p-4">
+                        <div className="mb-3">
+                          <h3 className="text-sm font-semibold">General resources</h3>
+                          <p className="mt-1 text-xs leading-5 text-[#817b72]">Published material assigned to this subject but not yet mapped to a specific topic. It remains available here instead of being hidden.</p>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {subjectResources.filter((resource) => !resource.topicId).map((resource) => {
+                            const Icon = iconFor(resource.kind);
+                            return (
+                              <button key={resource.id} onClick={() => setSelected(resource)} className="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--line)] bg-white p-4 text-left transition-colors hover:border-[#c9c1b4]">
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#efede7]"><Icon className="size-4 text-[var(--accent)]"/></span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block text-sm font-semibold">{resource.title}</span>
+                                  <span className="mt-1 block text-[10px] uppercase tracking-wider text-[#8a8378]">{kindLabels[resource.kind] ?? resource.kind.replaceAll("_", " ")}</span>
+                                  {resource.sourcePage && <span className="mt-1 block text-[10px] text-[#817b72]">PDF pages {resource.sourcePage}</span>}
+                                  {resource.verificationStatus === "unreviewed" && <span className="mt-2 inline-flex rounded-full border border-[#d9c8a9] bg-[#f8f1e4] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#80643a]">Source-attributed · not yet reviewed</span>}
+                                </span>
+                                <ArrowUpRightIcon className="size-4 shrink-0 text-[#817b72]"/>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    )}
                   </div>
                 </div>
               </details>
