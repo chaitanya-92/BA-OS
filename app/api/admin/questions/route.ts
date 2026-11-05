@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
     }).from(questions)
       .where(eq(questions.isPublished, false))
       .orderBy(asc(questions.createdAt))
-      .limit(100);
+      .limit(500);
 
     return NextResponse.json({ items: pending });
   } catch {
