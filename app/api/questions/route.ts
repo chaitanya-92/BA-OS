@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike } from "drizzle-orm";
+import { and, count, desc, eq, ilike } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
@@ -45,6 +45,12 @@ export async function GET(request: NextRequest) {
     ];
 
     const db = getDb();
+    const [totalRow] = await db
+      .select({ total: count() })
+      .from(questions)
+      .where(and(...conditions));
+    const total = totalRow?.total ?? 0;
+
     const items = await db
       .select({
         id: questions.id,
@@ -73,7 +79,8 @@ export async function GET(request: NextRequest) {
         limit: filters.limit,
         offset: filters.offset,
         returned: items.length,
-        hasMore: items.length === filters.limit,
+        total,
+        hasMore: filters.offset + items.length < total,
       },
     });
   } catch {
