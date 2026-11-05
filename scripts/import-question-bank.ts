@@ -1,6 +1,9 @@
 #!/usr/bin/env tsx
 import { readFile } from "node:fs/promises";
 import { config } from "dotenv";
+import { and, eq } from "drizzle-orm";
+import { getDb } from "../lib/db";
+import { exams, examSections, subjects, topics } from "../lib/db/schema";
 config({ path: ".env.local" });
 
 type BankQuestion = {
@@ -19,6 +22,14 @@ async function main() {
   const token = process.env.ADMIN_IMPORT_TOKEN ?? "";
   if (!base || !token) throw new Error("Set MBA_OS_BASE_URL and ADMIN_IMPORT_TOKEN before importing.");
   const adminToken: string = token;
+  const db = getDb();
+  const [cat] = await db.select({ id: exams.id }).from(exams).where(eq(exams.slug, "cat")).limit(1);
+  const [qa] = cat ? await db.select({ id: examSections.id }).from(examSections).where(and(eq(examSections.examId, cat.id), eq(examSections.slug, "qa"))).limit(1) : [];
+  const [quant] = await db.select({ id: subjects.id }).from(subjects).where(eq(subjects.slug, "quantitative-aptitude")).limit(1);
+  if (!cat || !qa || !quant) throw new Error("CAT taxonomy is missing. Run npm run db:bootstrap first.");
+  const topicRows = await db.select({ id: topics.id, slug: topics.slug }).from(topics).where(eq(topics.subjectId, quant.id));
+  const topicBySlug = new Map(topicRows.map((topic) => [topic.slug, topic.id]));
+  const slugify = (value: string) => value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   const bank = JSON.parse(await readFile(file, "utf8")) as Bank;
   if (!Array.isArray(bank.questions) || bank.questions.length === 0) throw new Error("No questions found in import file.");
 
@@ -34,6 +45,8 @@ async function main() {
         isCorrect: q.answerKey ? option.key === q.answerKey : null,
       }));
       const payload = {
+        examId: cat.id, examSectionId: qa.id, subjectId: quant.id,
+        topicId: topicBySlug.get(slugify(q.topic)) ?? null,
         questionType: "mcq_single", difficulty: q.difficulty, prompt: q.prompt, options,
         sourceReference: "CAT Arithmetic 320 Questions & Solutions Workbook — original practice material",
         sourceQuestionNumber: q.sourceQuestionNumber,
@@ -57,7 +70,8 @@ async function main() {
   }
 
   await Promise.all(Array.from({ length: concurrency }, () => worker()));
-  console.log(JSON.stringify({ source: file, total: bank.questions.length, imported, duplicates, failed, errors: errors.slice(0, 30) }, null, 2));
+  await db.$client.end?.();
+  console.log(JSON.stringify({ source: file, total: bank.questions.length, imported, duplicates, failed, taxonomy: { exam: "CAT", section: "QA", subject: "Quantitative Aptitude", mappedTopics: topicRows.length }, errors: errors.slice(0, 30) }, null, 2));
   if (failed) process.exitCode = 1;
 }
 
