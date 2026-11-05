@@ -12,8 +12,9 @@ type BankQuestion = {
 type Bank = { questions: BankQuestion[] };
 const file = process.argv[2] ?? "data/imports/cat-arithmetic-320-original.json";
 const base = process.env.MBA_OS_BASE_URL?.replace(/\/$/, "");
-const token = process.env.ADMIN_IMPORT_TOKEN;
+const token = process.env.ADMIN_IMPORT_TOKEN ?? "";
 if (!base || !token) throw new Error("Set MBA_OS_BASE_URL and ADMIN_IMPORT_TOKEN before importing.");
+const adminToken: string = token;
 const bank = JSON.parse(await readFile(file, "utf8")) as Bank;
 if (!Array.isArray(bank.questions) || bank.questions.length === 0) throw new Error("No questions found in import file.");
 const concurrency = 4;
@@ -37,7 +38,7 @@ async function worker() {
     };
     try {
       const response = await fetch(base + "/api/admin/questions", {
-        method: "POST", headers: { "content-type": "application/json", "x-admin-import-token": token },
+        method: "POST", headers: { "content-type": "application/json", "x-admin-import-token": adminToken },
         body: JSON.stringify(payload),
       });
       const result = await response.json() as { status?: string; error?: string };
