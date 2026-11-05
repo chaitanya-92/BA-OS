@@ -4,11 +4,7 @@ The repository contains a protected, idempotent import path for original questio
 
 ## Environment
 
-Set:
-- `MBA_OS_BASE_URL`: deployed MBA OS origin (or `http://localhost:3000`)
-- `ADMIN_IMPORT_TOKEN`: the same secret configured on the deployment
-
-Never commit the token.
+The import scripts read the same database connection configured for Drizzle from `.env.local` (or the process environment). Set `DATABASE_URL` and keep credentials out of Git. The question-bank importer writes directly to that database; it does not depend on a deployed app URL or an admin HTTP token.
 
 ## Question bank
 
@@ -20,7 +16,7 @@ npm run import:question-bank -- data/imports/cat-arithmetic-320-original.json
 
 The 320 records are original practice MCQs: 240 core questions and 80 explicitly labelled PYQ-pattern practice questions. They are not official CAT PYQs. Records are imported unpublished. Source-provided solutions are retained. The source workbook contains worked solutions for only the first 40 percentage questions; the other 280 do not have individual answer keys/solutions in the supplied workbook and remain unkeyed. One add-on percentage item has a documented mismatch between its worked solution and its options; it is flagged for review.
 
-The script sends records to the protected question intake API in small concurrent batches. It reports imported, duplicate and failed records.
+The script inserts records directly into the configured database in small concurrent batches and reports imported, duplicate and failed records. This avoids accidentally importing into a different database via a stale `MBA_OS_BASE_URL`. All imported records remain unpublished in the admin review queue; MCQs without a supplied answer key remain unkeyed and cannot be published until an answer is verified.
 
 ## Study notes
 
