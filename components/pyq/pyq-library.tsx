@@ -114,9 +114,14 @@ export function PyqLibrary() {
     fetch("/api/resources", { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("Resources unavailable");
-        return response.json() as Promise<{ items?: unknown[] }>;
+        return response.json() as Promise<{ items?: unknown[]; counts?: { total?: number }; partial?: boolean }>;
       })
-      .then((data) => setPublishedResourceCount(Array.isArray(data.items) ? data.items.length : 0))
+      .then((data) => {
+        setPublishedResourceCount(Number.isFinite(data.counts?.total)
+          ? Number(data.counts?.total)
+          : Array.isArray(data.items) ? data.items.length : 0);
+        if (data.partial) setError("Some learning-resource storage is unavailable; available resources can still be opened in the Learning Library.");
+      })
       .catch(() => {
         if (!controller.signal.aborted) setPublishedResourceCount(null);
       });
