@@ -29,7 +29,11 @@ async function main() {
   if (!cat || !qa || !quant) throw new Error("CAT taxonomy is missing. Run npm run db:bootstrap first.");
   const topicRows = await db.select({ id: topics.id, slug: topics.slug }).from(topics).where(eq(topics.subjectId, quant.id));
   const topicBySlug = new Map(topicRows.map((topic) => [topic.slug, topic.id]));
-  const slugify = (value: string) => value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const slugify = (value: string) => {
+    const normalized = value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    if (normalized === "profit-and-loss" || normalized === "profit-loss") return "profit-loss-and-discount";
+    return normalized;
+  };
   const sourceReference = "CAT Arithmetic 320 Questions & Solutions Workbook — original practice material";
   const existingQuestions = await db.select({ id: questions.id, metadata: questions.metadata })
     .from(questions).where(eq(questions.sourceReference, sourceReference));
