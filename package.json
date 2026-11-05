@@ -13,7 +13,9 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed-taxonomy.ts",
     "db:seed:content": "tsx scripts/seed-quant-content.ts",
-    "db:bootstrap": "npm run db:migrate && npm run db:seed && npm run db:seed:content"
+    "db:bootstrap": "npm run db:migrate && npm run db:seed && npm run db:seed:content",
+    "import:question-bank": "tsx scripts/import-question-bank.ts",
+    "import:study-resources": "tsx scripts/import-study-resources.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
