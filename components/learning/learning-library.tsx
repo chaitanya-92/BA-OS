@@ -38,6 +38,16 @@ function iconFor(kind: string) {
   return DocumentTextIcon;
 }
 
+
+function LibraryDropdown({ value, onChange, options, label }: { value: string; onChange: (value: string) => void; options: { value: string; label: string }[]; label: string }) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((option) => option.value === value) ?? options[0];
+  return <div className="relative z-20">
+    <button type="button" aria-label={label} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)} className="flex h-12 w-full items-center justify-between gap-4 rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-4 text-left text-sm text-[#393630] shadow-sm transition hover:border-[#bdb5a8] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"><span>{selected?.label ?? label}</span><span className={"text-[#817b72] transition-transform " + (open ? "rotate-180" : "")}>⌄</span></button>
+    {open && <><button aria-label="Close dropdown" className="fixed inset-0 z-[-1] cursor-default" onClick={() => setOpen(false)} /><div role="listbox" aria-label={label} className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 max-h-72 overflow-y-auto rounded-xl border border-[var(--line)] bg-[#fffefa] p-1.5 shadow-[0_16px_42px_rgba(25,23,19,.16)]">{options.map((option) => <button key={option.value} type="button" role="option" aria-selected={value === option.value} onClick={() => { onChange(option.value); setOpen(false); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition " + (value === option.value ? "bg-[#efede7] font-semibold text-[#171717]" : "text-[#625d55] hover:bg-[#f4f1eb]")}>{option.label}<span>{value === option.value ? "✓" : ""}</span></button>)}</div></>}
+  </div>;
+}
+
 export function LearningLibrary() {
   const [catalogue, setCatalogue] = useState<Catalogue>({ subjects: [], topics: [] });
   const [resources, setResources] = useState<Resource[]>([]);
@@ -111,10 +121,7 @@ export function LearningLibrary() {
             <MagnifyingGlassIcon className="size-4 text-[#817b72]"/>
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search concepts, notes, formulas and traps…" className="w-full bg-transparent text-sm outline-none placeholder:text-[#a29b90]"/>
           </label>
-          <select value={subjectId} onChange={(event) => setSubjectId(event.target.value)} className="h-12 cursor-pointer rounded-xl border border-[var(--line)] bg-[#fbfaf7] px-3 text-sm outline-none">
-            <option value="all">All subjects</option>
-            {catalogue.subjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}
-          </select>
+          <LibraryDropdown label="Choose subject" value={subjectId} onChange={setSubjectId} options={[{ value: "all", label: "All subjects" }, ...catalogue.subjects.map((subject) => ({ value: subject.id, label: subject.name }))]} />
         </div>
 
         {catalogueError && <div role="alert" className="mt-5 rounded-xl border border-[#e2c7bf] bg-[#fbf3f0] p-4 text-sm text-[#87483e]">The learning catalogue could not be loaded. Check the database migration and connection.</div>}
@@ -168,6 +175,10 @@ export function LearningLibrary() {
               </details>
             );
           })}
+          {!loading && subjectId === "all" && visibleResources.some((resource) => !resource.subjectId) && <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-white/55">
+            <div className="flex items-center gap-4 border-b border-[var(--line)] p-5 sm:p-6"><span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#efede7]"><BookOpenIcon className="size-5 text-[#635e55]"/></span><div><h2 className="font-display text-xl sm:text-2xl">Imported study resources</h2><p className="mt-1 text-xs text-[#817b72]">Source-organised material not yet mapped to a subject or topic · {visibleResources.filter((resource) => !resource.subjectId).length} resources</p></div></div>
+            <div className="grid gap-2 p-4 sm:grid-cols-2 sm:p-5">{visibleResources.filter((resource) => !resource.subjectId).map((resource) => <button key={resource.id} onClick={() => setSelected(resource)} className="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-4 text-left transition-colors hover:border-[#c9c1b4] hover:bg-white"><span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#efede7]"><DocumentTextIcon className="size-4 text-[var(--accent)]"/></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{resource.title}</span><span className="mt-1 block text-[10px] uppercase tracking-wider text-[#8a8378]">{resource.kind.replaceAll("_", " ")}</span>{resource.sourcePage && <span className="mt-1 block text-[10px] text-[#817b72]">PDF pages {resource.sourcePage}</span>}{resource.verificationStatus === "unreviewed" && <span className="mt-2 inline-flex rounded-full border border-[#d9c8a9] bg-[#f8f1e4] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#80643a]">Source-attributed · not yet reviewed</span>}</span><ArrowUpRightIcon className="size-4 shrink-0 text-[#817b72]"/></button>)}</div>
+          </section>}
           {!loading && visibleSubjects.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--line)] py-16 text-center text-sm text-[#817b72]"><XCircleIcon className="mx-auto mb-3 size-7"/>No matching subjects or resources.</div>}
         </div>
       </section>
