@@ -56,26 +56,49 @@ export function LearningLibrary() {
   const [selected, setSelected] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
   const [catalogueError, setCatalogueError] = useState(false);
+  const [resourceWarning, setResourceWarning] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
-    Promise.all([
-      fetch("/api/catalog", { signal: controller.signal, cache: "no-store" }),
-      fetch("/api/resources", { signal: controller.signal, cache: "no-store" }),
-    ]).then(async ([catalogueResponse, resourceResponse]) => {
-      if (!catalogueResponse.ok || !resourceResponse.ok) throw new Error("Library unavailable");
-      const [catalogueData, resourceData] = await Promise.all([
-        catalogueResponse.json() as Promise<Catalogue>,
-        resourceResponse.json() as Promise<{ items: Resource[] }>,
+    async function loadLibrary() {
+      const [catalogueResult, resourceResult] = await Promise.allSettled([
+        fetch("/api/catalog", { signal: controller.signal, cache: "no-store" }),
+        fetch("/api/resources", { signal: controller.signal, cache: "no-store" }),
       ]);
-      setCatalogue(catalogueData);
-      setResources(resourceData.items);
-    }).catch((error: unknown) => {
-      if (error instanceof Error && error.name === "AbortError") return;
-      setCatalogueError(true);
-    }).finally(() => {
+
+      if (controller.signal.aborted) return;
+
+      if (catalogueResult.status === "fulfilled" && catalogueResult.value.ok) {
+        try {
+          setCatalogue(await catalogueResult.value.json() as Catalogue);
+        } catch {
+          setCatalogueError(true);
+        }
+      } else {
+        setCatalogueError(true);
+      }
+
+      if (resourceResult.status === "fulfilled" && resourceResult.value.ok) {
+        try {
+          const payload = await resourceResult.value.json() as {
+            items?: Resource[];
+            partial?: boolean;
+          };
+          setResources(Array.isArray(payload.items) ? payload.items : []);
+          if (payload.partial) {
+            setResourceWarning("Some resource storage is unavailable. Material that loaded successfully is still shown below.");
+          }
+        } catch {
+          setResourceWarning("The resource response could not be read.");
+        }
+      } else {
+        setResourceWarning("Published learning resources could not be loaded. Check the database connection and migrations.");
+      }
+
       if (!controller.signal.aborted) setLoading(false);
-    });
+    }
+
+    void loadLibrary();
     return () => controller.abort();
   }, []);
 
@@ -125,6 +148,7 @@ export function LearningLibrary() {
         </div>
 
         {catalogueError && <div role="alert" className="mt-5 rounded-xl border border-[#e2c7bf] bg-[#fbf3f0] p-4 text-sm text-[#87483e]">The learning catalogue could not be loaded. Check the database migration and connection.</div>}
+        {resourceWarning && <div role="status" className="mt-5 rounded-xl border border-[#e3d5bb] bg-[#f8f1e4] p-4 text-sm text-[#80643a]">{resourceWarning}</div>}
 
         <div className="mt-7 space-y-4">
           {loading && Array.from({ length: 3 }, (_, index) => <div key={index} className="h-32 animate-pulse rounded-2xl border border-[var(--line)] bg-white/55"/>)}
