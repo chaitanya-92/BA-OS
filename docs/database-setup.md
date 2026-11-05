@@ -12,10 +12,9 @@
 2. Copy `.env.example` to `.env.local`.
 3. Put the new pooled Neon connection string in `DATABASE_URL`. Keep `.env.local` out of Git.
 4. Install the updated dependencies with `npm install`.
-5. Apply the committed complete initial schema migration with `npm run db:migrate`.
-6. Seed the exam and subject taxonomy with `npm run db:seed` (safe to re-run; uses upserts).
-7. Queue the supplied independent CAT Quant revision material with `npm run db:seed:content`.
-8. Start the app with `npm run dev` and verify `/api/health`.
+5. Run `npm run db:bootstrap` to apply migrations, seed exam/subject taxonomy and queue the supplied independent CAT Quant revision material in one ordered command. The command stops at the first failure.
+6. Start the app with `npm run dev` and verify `/api/health`.
+7. Open `/admin/content` to review the Quant drafts. They remain invisible in `/learn` until explicitly approved and published.
 
 ## Current schema domains
 
@@ -52,13 +51,14 @@ Question records preserve exam year, slot, source reference, source page, source
 - `GET /api/questions/:id`: returns a published question, options and available explanations.
 - `GET /api/colleges`: returns active colleges with published MBA programmes.
 - `GET /api/calendar`: returns published entrance and admission events, including source and verification metadata.
-- `GET /api/admin/questions`: lists pending questions or returns full answer-key details when an `id` query parameter is supplied.
+- `GET /api/admin/questions`: lists pending questions, returns full answer-key details when an `id` query parameter is supplied, or lists published question IDs for test assembly with `?published=true`.
+- `GET/POST/PATCH /api/admin/tests`: protected test authoring, question assignment and publish/unpublish workflow. Tests remain drafts until published; every assigned question must already be published.
 - `POST /api/admin/questions`: imports one question using the `x-admin-import-token` header. It always creates an unpublished, unreviewed record; content fingerprinting is scoped by exam/year/slot/source reference.
 - `PATCH /api/admin/questions`: verifies and publishes an eligible question or marks it disputed. MCQs require a correct option; non-MCQs require a verified answer key.
 
 Supported question filters: `examId`, `sectionId`, `subjectId`, `topicId`, `year`, `difficulty`, `q`, `limit` (1–50) and `offset` (0–10000).
 
-Set a long random `ADMIN_IMPORT_TOKEN` in `.env.local` before using the protected question and content authoring endpoints. After migration and taxonomy seed, run `npm run db:seed:content` to queue the supplied independent CAT Quant revision material as unpublished drafts. Do not put this token in client-side code or commit it. Imported records remain unpublished until reviewed and explicitly approved.
+Set a long random `ADMIN_IMPORT_TOKEN` in `.env.local` before using the protected question and content authoring endpoints. Run `npm run db:bootstrap` for the ordered database setup. Use `/admin/questions` to import and review questions, then `/admin/tests` to select published question IDs, assemble sections and publish complete tests. Use `/admin/content` to review and publish notes/formulas/traps. The student libraries intentionally show only published material. Do not put this token in client-side code or commit it. Imported records remain unpublished until reviewed and explicitly approved.
 
 ## Important implementation boundaries
 
