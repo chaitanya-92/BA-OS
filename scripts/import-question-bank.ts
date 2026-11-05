@@ -1,5 +1,7 @@
 #!/usr/bin/env tsx
 import { readFile } from "node:fs/promises";
+import { config } from "dotenv";
+config({ path: ".env.local" });
 
 type BankQuestion = {
   topic: string; difficulty: "easy" | "moderate" | "difficult" | "unrated";
