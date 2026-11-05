@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 
 type AdminTest = { id: string; title: string; slug: string; kind: string; durationMinutes: number; isPublished: boolean; sectionCount: number; questionCount: number };
@@ -47,7 +47,6 @@ export function AdminTestDesk() {
     finally { setBusy(false); }
   }, [token]);
 
-  useEffect(() => { if (token.trim()) void load(); }, [load, token]);
 
   async function create() {
     let value: unknown;
