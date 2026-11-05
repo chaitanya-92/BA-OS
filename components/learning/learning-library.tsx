@@ -16,6 +16,9 @@ type Resource = {
   kind: string;
   content: string | null;
   externalUrl: string | null;
+  verificationStatus?: string;
+  sourceReference?: string | null;
+  sourcePage?: string | null;
 };
 type Catalogue = { subjects: Subject[]; topics: Topic[] };
 
@@ -148,7 +151,7 @@ export function LearningLibrary() {
                                 return (
                                   <button key={resource.id} onClick={() => setSelected(resource)} className="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--line)] bg-[#fbfaf7] p-4 text-left transition-colors hover:border-[#c9c1b4] hover:bg-white">
                                     <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#efede7]"><Icon className="size-4 text-[var(--accent)]"/></span>
-                                    <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{resource.title}</span><span className="mt-1 block text-[10px] uppercase tracking-wider text-[#8a8378]">{kindLabels[resource.kind] ?? resource.kind.replaceAll("_", " ")}</span></span>
+                                    <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{resource.title}</span><span className="mt-1 block text-[10px] uppercase tracking-wider text-[#8a8378]">{kindLabels[resource.kind] ?? resource.kind.replaceAll("_", " ")}</span>{resource.verificationStatus === "unreviewed" && <span className="mt-2 inline-flex rounded-full border border-[#d9c8a9] bg-[#f8f1e4] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#80643a]">Source-attributed · not yet reviewed</span>}</span>
                                     <ArrowUpRightIcon className="size-4 shrink-0 text-[#817b72]"/>
                                   </button>
                                 );
@@ -170,6 +173,8 @@ export function LearningLibrary() {
       </section>
 
       <Modal open={Boolean(selected)} onClose={() => setSelected(null)} title={selected?.title ?? "Learning resource"} description={selected ? kindLabels[selected.kind] ?? selected.kind : undefined} size="lg">
+        {selected?.verificationStatus === "unreviewed" && <div className="mb-4 rounded-xl border border-[#e3d5bb] bg-[#f8f1e4] p-3 text-xs leading-5 text-[#80643a]">This source-attributed draft has been published for study access, but it has not yet completed editorial verification. Check the source and worked method before relying on it in a scored test.</div>}
+        {selected?.sourceReference && <p className="mb-4 text-xs text-[#817b72]">Source: {selected.sourceReference}{selected.sourcePage ? ` · ${selected.sourcePage}` : ""}</p>}
         {selected?.content && <div className="prose prose-sm max-w-none whitespace-pre-wrap leading-7 text-[#49463f]">{selected.content}</div>}
         {selected?.kind === "formula" && <LearningCallout kind="formula">Review the formula carefully and test it with a worked example before relying on it under timed conditions.</LearningCallout>}
         {selected?.externalUrl && <a href={selected.externalUrl} target="_blank" rel="noreferrer" className="btn btn-neutral mt-4 rounded-full normal-case">Open resource <ArrowUpRightIcon className="size-4"/></a>}
